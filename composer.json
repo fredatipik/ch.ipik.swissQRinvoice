@@ -1,0 +1,16 @@
+{
+  "name": "ipik/swiss-qr-invoice",
+  "description": "CiviCRM extension for Swiss QR invoices",
+  "require": {
+    "php": ">=7.4",
+    "sprain/swiss-qr-bill": "^4.4"
+  },
+  "config": {
+    "vendor-dir": "vendor"
+  },
+  "autoload": {
+    "psr-4": {
+      "Ipik\\SwissQRInvoice\\": "src/"
+    }
+  }
+}

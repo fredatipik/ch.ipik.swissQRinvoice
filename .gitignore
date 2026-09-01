@@ -1,0 +1,4 @@
+/vendor/
+*.tar.gz
+*.tar
+.DS_Store
