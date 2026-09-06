@@ -1,10 +1,10 @@
-# Installation — com.ipik.swissQRinvoice
+# Installation — ch.ipik.swissQRinvoice
 
 ## 1. Copier l'extension
 
-Placer le dossier `com.ipik.swissQRinvoice` dans le répertoire d'extensions CiviCRM :
+Placer le dossier `ch.ipik.swissQRinvoice` dans le répertoire d'extensions CiviCRM :
 ```
-/path/to/civicrm/ext/com.ipik.swissQRinvoice/
+/path/to/civicrm/ext/ch.ipik.swissQRinvoice/
 ```
 
 ## 2. Installer la librairie QR suisse
@@ -12,7 +12,7 @@ Placer le dossier `com.ipik.swissQRinvoice` dans le répertoire d'extensions Civ
 La génération du QR code requiert la librairie PHP `sprain/swiss-qr-bill`.
 
 ```bash
-cd /path/to/civicrm/ext/com.ipik.swissQRinvoice
+cd /path/to/civicrm/ext/ch.ipik.swissQRinvoice
 composer install --no-dev
 ```
 
@@ -53,8 +53,8 @@ Exemple : `/home/clients/xxx/files/kerma-logo.png`
 
 ## Multilingue (v2)
 
-La structure i18n est préparée (domaine `com.ipik.swissQRinvoice`).
-Pour ajouter une langue : créer `l10n/de_DE/LC_MESSAGES/com.ipik.swissQRinvoice.po`
+La structure i18n est préparée (domaine `ch.ipik.swissQRinvoice`).
+Pour ajouter une langue : créer `l10n/de_DE/LC_MESSAGES/ch.ipik.swissQRinvoice.po`
 
 ## Mass generation (v2)
 

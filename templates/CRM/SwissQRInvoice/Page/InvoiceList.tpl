@@ -1,4 +1,4 @@
-{crmScope extensionKey='com.ipik.swissQRinvoice'}
+{crmScope extensionKey='ch.ipik.swissQRinvoice'}
 <style>
 .swissqr-badge { display:inline-block; padding:3px 10px; border-radius:12px; font-size:11px; font-weight:600; white-space:nowrap; }
 .swissqr-draft     { background:#fff3cd; color:#7a5c00; border:1px solid #f0c430; }

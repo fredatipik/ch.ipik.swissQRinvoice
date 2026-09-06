@@ -1,4 +1,4 @@
-{crmScope extensionKey='com.ipik.swissQRinvoice'}
+{crmScope extensionKey='ch.ipik.swissQRinvoice'}
 <div class="crm-block crm-form-block">
   <h3>Swiss QR Invoice — Paramètres</h3>
   {include file="CRM/common/formButtons.tpl" location="top"}

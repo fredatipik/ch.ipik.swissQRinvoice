@@ -1,4 +1,4 @@
-{crmScope extensionKey='com.ipik.swissQRinvoice'}
+{crmScope extensionKey='ch.ipik.swissQRinvoice'}
 <div class="crm-block crm-form-block">
   <h3>{if $is_edit}Modifier la facture {$invoice.invoice_number}{else}Nouvelle facture{/if}</h3>
 

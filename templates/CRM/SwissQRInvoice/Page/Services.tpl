@@ -1,4 +1,4 @@
-{crmScope extensionKey='com.ipik.swissQRinvoice'}
+{crmScope extensionKey='ch.ipik.swissQRinvoice'}
 <div class="crm-content-block crm-block">
   <h3>Prestations</h3>
 

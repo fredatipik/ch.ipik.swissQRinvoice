@@ -1,4 +1,4 @@
-# com.ipik.swissQRinvoice — Swiss QR Invoice for CiviCRM
+# ch.ipik.swissQRinvoice — Swiss QR Invoice for CiviCRM
 
 A CiviCRM extension for generating PDF invoices with a **Swiss QR-bill** (Swiss Payment Standard / ISO 20022) slip, linked to CiviCRM contacts and contributions.
 

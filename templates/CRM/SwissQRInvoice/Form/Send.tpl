@@ -1,4 +1,4 @@
-{crmScope extensionKey='com.ipik.swissQRinvoice'}
+{crmScope extensionKey='ch.ipik.swissQRinvoice'}
 <div class="crm-block crm-form-block">
   <h3>Envoyer la facture {$invoice.invoice_number} — {$invoice.contact_name|escape}</h3>
 

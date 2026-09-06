@@ -5,7 +5,7 @@
 
 set -e
 
-EXT_NAME="com.ipik.swissQRinvoice"
+EXT_NAME="ch.ipik.swissQRinvoice"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 EXT_DIR="${1:-$(dirname "$SCRIPT_DIR")}"
 TARGET="${EXT_DIR}/${EXT_NAME}"

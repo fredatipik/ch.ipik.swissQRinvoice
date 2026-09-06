@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<extension key="com.ipik.swissQRinvoice" type="module">
+<extension key="ch.ipik.swissQRinvoice" type="module">
   <file>swissQRinvoice</file>
   <name>Swiss QR Invoice</name>
   <description>Generate PDF invoices with Swiss QR-bill (Swiss Payment Standard) for CiviCRM contacts. Supports manual invoice creation, dynamic line items, service catalog, email sending with customizable templates, mark-as-paid linked to CiviCRM contributions, and a contact tab showing invoice history.</description>
@@ -9,12 +9,12 @@
     <email>fred@ipik.ch</email>
   </maintainer>
   <urls>
-    <url desc="Main">https://github.com/ipik/com.ipik.swissQRinvoice</url>
-    <url desc="Documentation">https://github.com/ipik/com.ipik.swissQRinvoice/blob/main/README.md</url>
-    <url desc="Bugs">https://github.com/ipik/com.ipik.swissQRinvoice/issues</url>
+    <url desc="Main">https://github.com/fredatipik/ch.ipik.swissQRinvoice</url>
+    <url desc="Documentation">https://github.com/fredatipik/ch.ipik.swissQRinvoice/blob/main/README.md</url>
+    <url desc="Bugs">https://github.com/fredatipik/ch.ipik.swissQRinvoice/issues</url>
   </urls>
   <releaseDate>2025-06-01</releaseDate>
-  <version>0.27</version>
+  <version>0.29</version>
   <develStage>alpha</develStage>
   <compatibility>
     <ver>5.0</ver>

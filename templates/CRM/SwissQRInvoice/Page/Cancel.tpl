@@ -1,4 +1,4 @@
-{crmScope extensionKey='com.ipik.swissQRinvoice'}
+{crmScope extensionKey='ch.ipik.swissQRinvoice'}
 <div class="crm-block crm-content-block">
   <div class="messages warning">
     <i class="crm-i fa-exclamation-triangle"></i>

@@ -1,6 +1,6 @@
 <?php
 /**
- * Helpers partagés pour com.ipik.swissQRinvoice.
+ * Helpers partagés pour ch.ipik.swissQRinvoice.
  */
 class CRM_SwissQRInvoice_Utils {
 

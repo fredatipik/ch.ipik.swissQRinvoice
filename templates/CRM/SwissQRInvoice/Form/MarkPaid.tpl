@@ -1,4 +1,4 @@
-{crmScope extensionKey='com.ipik.swissQRinvoice'}
+{crmScope extensionKey='ch.ipik.swissQRinvoice'}
 <div class="crm-block crm-form-block">
   <h3>Confirmer le paiement — Facture {$invoice.invoice_number}</h3>
   <div class="crm-section">
