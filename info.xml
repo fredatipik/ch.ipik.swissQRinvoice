@@ -13,11 +13,11 @@
     <url desc="Documentation">https://github.com/fredatipik/ch.ipik.swissQRinvoice/blob/main/README.md</url>
     <url desc="Bugs">https://github.com/fredatipik/ch.ipik.swissQRinvoice/issues</url>
   </urls>
-  <releaseDate>2025-06-01</releaseDate>
+  <releaseDate>2026-09-16</releaseDate>
   <version>0.29</version>
   <develStage>alpha</develStage>
   <compatibility>
-    <ver>5.0</ver>
+    <ver>6.0</ver>
   </compatibility>
   <tags>
     <tag>invoicing</tag>
@@ -31,7 +31,4 @@
     <mixin>scan-classes@1</mixin>
     <mixin>setting-php@1</mixin>
   </mixins>
-  <requires>
-    <ext>org.civicrm.search_kit</ext>
-  </requires>
 </extension>

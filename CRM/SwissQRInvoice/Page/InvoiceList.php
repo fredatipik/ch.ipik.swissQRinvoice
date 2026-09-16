@@ -30,7 +30,7 @@ class CRM_SwissQRInvoice_Page_InvoiceList extends CRM_Core_Page {
     $this->assign('filterContactName',  $filterContactName);
     $this->assign('canEdit',            CRM_Core_Permission::check('edit swissqr invoices'));
 
-    CRM_Utils_System::setTitle(ts('Facturation — Toutes les factures'));
+    CRM_Utils_System::setTitle(ts('Facturation — Toutes les factures', ['domain' => 'ch.ipik.swissQRinvoice']));
     return parent::run();
   }
 }

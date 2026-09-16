@@ -282,12 +282,12 @@ function swissQRinvoice_civicrm_alterMenu(&$items) {
 
 function swissQRinvoice_civicrm_permission(&$permissions) {
   $permissions['access swissqr invoices'] = [
-    'label'       => ts('Swiss QR Invoice: consulter les factures'),
-    'description' => ts('Voir la liste et les détails des factures QR.'),
+    'label'       => ts('Swiss QR Invoice: consulter les factures', ['domain' => 'ch.ipik.swissQRinvoice']),
+    'description' => ts('Voir la liste et les détails des factures QR.', ['domain' => 'ch.ipik.swissQRinvoice']),
   ];
   $permissions['edit swissqr invoices'] = [
-    'label'       => ts('Swiss QR Invoice: créer et modifier des factures'),
-    'description' => ts('Créer, éditer, envoyer et marquer payées les factures QR.'),
+    'label'       => ts('Swiss QR Invoice: créer et modifier des factures', ['domain' => 'ch.ipik.swissQRinvoice']),
+    'description' => ts('Créer, éditer, envoyer et marquer payées les factures QR.', ['domain' => 'ch.ipik.swissQRinvoice']),
   ];
 }
 
@@ -352,7 +352,7 @@ function swissQRinvoice_civicrm_tabset($tabsetName, &$tabs, $context) {
   $tabs['swissqr_invoices'] = [
     'id'     => 'swissqr_invoices',
     'url'    => CRM_Utils_System::url('civicrm/swissqr/invoice/list', "cid={$contactID}&reset=1"),
-    'title'  => ts('Factures QR') . ($count ? " ({$count})" : ''),
+    'title'  => ts('Factures QR', ['domain' => 'ch.ipik.swissQRinvoice']) . ($count ? " ({$count})" : ''),
     'weight' => 150,
     'valid'  => 1,
     'active' => 1,
@@ -367,7 +367,7 @@ function swissQRinvoice_civicrm_tabs(&$tabs, $contactID) {
   $tabs[] = [
     'id'     => 'swissqr_invoices',
     'url'    => CRM_Utils_System::url('civicrm/swissqr/invoice/list', "cid={$contactID}&reset=1"),
-    'title'  => ts('Factures QR') . ($count ? " ({$count})" : ''),
+    'title'  => ts('Factures QR', ['domain' => 'ch.ipik.swissQRinvoice']) . ($count ? " ({$count})" : ''),
     'weight' => 150,
   ];
 }

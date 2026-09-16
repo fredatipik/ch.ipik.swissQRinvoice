@@ -11,13 +11,13 @@ class CRM_SwissQRInvoice_Form_MarkPaid extends CRM_Core_Form {
       $id = (int) CRM_Core_Session::singleton()->get('swissqr_markpaid_invoice_id');
       $this->_invoice = $id ? CRM_SwissQRInvoice_BAO_Invoice::getById($id) : [];
     }
-    if (!$this->_invoice) CRM_Core_Error::fatal(ts('Facture introuvable.'));
+    if (!$this->_invoice) CRM_Core_Error::fatal(ts('Facture introuvable.', ['domain' => 'ch.ipik.swissQRinvoice']));
   }
 
   public function buildQuickForm() {
     $this->add('hidden','invoice_id', $this->_invoice['id']);
-    $this->add('text','amount',    ts('Montant reçu (CHF)'),    ['class'=>'six'], true);
-    $this->add('text','paid_date', ts('Date de paiement'),       ['type'=>'date','class'=>'crm-form-text'], true);
+    $this->add('text','amount',    ts('Montant reçu (CHF)', ['domain' => 'ch.ipik.swissQRinvoice']),    ['class'=>'six'], true);
+    $this->add('text','paid_date', ts('Date de paiement', ['domain' => 'ch.ipik.swissQRinvoice']),       ['type'=>'date','class'=>'crm-form-text'], true);
     $this->addButtons([
       ['type'=>'submit','name'=>ts('Confirmer le paiement'),'isDefault'=>true],
       ['type'=>'cancel','name'=>ts('Annuler')],
@@ -38,7 +38,7 @@ class CRM_SwissQRInvoice_Form_MarkPaid extends CRM_Core_Form {
     if (empty($this->_invoice)) throw new CRM_Core_Exception('Facture introuvable.');
     $paidDate = $vals['paid_date'];
     CRM_SwissQRInvoice_BAO_Invoice::markAsPaid($this->_invoice['id'],(float)$vals['amount'],$paidDate);
-    CRM_Core_Session::setStatus(ts('Facture marquée comme payée.'), ts('Succès'), 'success');
+    CRM_Core_Session::setStatus(ts('Facture marquée comme payée.', ['domain' => 'ch.ipik.swissQRinvoice']), ts('Succès', ['domain' => 'ch.ipik.swissQRinvoice']), 'success');
     CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/swissqr/invoice/list'));
   }
 }

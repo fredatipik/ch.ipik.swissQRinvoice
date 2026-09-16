@@ -1,21 +1,21 @@
 <?php
 class CRM_SwissQRInvoice_Form_Settings extends CRM_Core_Form {
   public function buildQuickForm() {
-    $this->addEntityRef('swissqr_org_contact_id', ts('Contact organisation expéditeur'), ['contact_type'=>'Organization'], true);
-    $this->add('text','swissqr_iban',           ts('IBAN'),              ['class'=>'huge'], true);
-    $this->add('text','swissqr_signatory_name', ts('Nom du signataire'), ['class'=>'huge']);
-    $this->add('text','swissqr_vat_note',       ts('Mention TVA'),       ['class'=>'huge']);
-    $this->add('text','swissqr_invoice_number_format', ts('Format numérotation'), ['class'=>'huge','placeholder'=>'{YEAR}-{SEQ:4}']);
-    $this->add('text','swissqr_qr_reference_template', ts('Template référence QR'), ['class'=>'huge','placeholder'=>'Facture N° {NUMBER}']);
-    $this->add('text','swissqr_qr_reference_template', ts('Template référence QR'), ['class'=>'huge','placeholder'=>'Facture N° {NUMBER}']);
+    $this->addEntityRef('swissqr_org_contact_id', ts('Contact organisation expéditeur', ['domain' => 'ch.ipik.swissQRinvoice']), ['contact_type'=>'Organization'], true);
+    $this->add('text','swissqr_iban',           ts('IBAN', ['domain' => 'ch.ipik.swissQRinvoice']),              ['class'=>'huge'], true);
+    $this->add('text','swissqr_signatory_name', ts('Nom du signataire', ['domain' => 'ch.ipik.swissQRinvoice']), ['class'=>'huge']);
+    $this->add('text','swissqr_vat_note',       ts('Mention TVA', ['domain' => 'ch.ipik.swissQRinvoice']),       ['class'=>'huge']);
+    $this->add('text','swissqr_invoice_number_format', ts('Format numérotation', ['domain' => 'ch.ipik.swissQRinvoice']), ['class'=>'huge','placeholder'=>'{YEAR}-{SEQ:4}']);
+    $this->add('text','swissqr_qr_reference_template', ts('Template référence QR', ['domain' => 'ch.ipik.swissQRinvoice']), ['class'=>'huge','placeholder'=>'Facture N° {NUMBER}']);
+    $this->add('text','swissqr_qr_reference_template', ts('Template référence QR', ['domain' => 'ch.ipik.swissQRinvoice']), ['class'=>'huge','placeholder'=>'Facture N° {NUMBER}']);
     // swissqr_email_body_template et swissqr_email_subject_template conservés en base (fallback Send.php)
     // mais retirés de l'UI — édition via CiviCRM > Templates de messages > "swissqrinvoice_send"
-    $this->add('text','swissqr_logo_path',       ts('Chemin logo (absolu)'),      ['class'=>'huge']);
-    $this->add('text','swissqr_logo_offset_x',   ts('Logo — décalage horizontal (mm)'), ['class'=>'four','placeholder'=>'0']);
-    $this->add('text','swissqr_logo_margin_bottom', ts('Logo — espace sous le logo (mm)'), ['class'=>'four','placeholder'=>'0']);
-    $this->add('text','swissqr_signature_path',  ts('Chemin signature (absolu)'), ['class'=>'huge']);
-    $this->add('text','swissqr_signature_offset_y', ts('Signature — décalage vertical (mm)'), ['class'=>'four','placeholder'=>'0']);
-    $this->add('checkbox','swissqr_single_page_pdf', ts('PDF une seule page (QR en bas de page 1)'));
+    $this->add('text','swissqr_logo_path',       ts('Chemin logo (absolu)', ['domain' => 'ch.ipik.swissQRinvoice']),      ['class'=>'huge']);
+    $this->add('text','swissqr_logo_offset_x',   ts('Logo — décalage horizontal (mm)', ['domain' => 'ch.ipik.swissQRinvoice']), ['class'=>'four','placeholder'=>'0']);
+    $this->add('text','swissqr_logo_margin_bottom', ts('Logo — espace sous le logo (mm)', ['domain' => 'ch.ipik.swissQRinvoice']), ['class'=>'four','placeholder'=>'0']);
+    $this->add('text','swissqr_signature_path',  ts('Chemin signature (absolu)', ['domain' => 'ch.ipik.swissQRinvoice']), ['class'=>'huge']);
+    $this->add('text','swissqr_signature_offset_y', ts('Signature — décalage vertical (mm)', ['domain' => 'ch.ipik.swissQRinvoice']), ['class'=>'four','placeholder'=>'0']);
+    $this->add('checkbox','swissqr_single_page_pdf', ts('PDF une seule page (QR en bas de page 1)', ['domain' => 'ch.ipik.swissQRinvoice']));
 
     // Compte financier pour Facture QR
     $faDao = CRM_Core_DAO::executeQuery(
@@ -23,14 +23,14 @@ class CRM_SwissQRInvoice_Form_Settings extends CRM_Core_Form {
     );
     $faOpts = ['' => '-- Même que Dons (défaut) --'];
     while ($faDao->fetch()) $faOpts[$faDao->id] = $faDao->name;
-    $this->add('select','swissqr_financial_account_id', ts('Compte financier (Facture QR)'), $faOpts);
+    $this->add('select','swissqr_financial_account_id', ts('Compte financier (Facture QR)', ['domain' => 'ch.ipik.swissQRinvoice']), $faOpts);
 
     // Rôles WordPress
     $roleOpts = [];
     if (function_exists('wp_roles')) {
       foreach (wp_roles()->roles as $k => $r) $roleOpts[$k] = $r['name'];
     }
-    if ($roleOpts) $this->addCheckBox('swissqr_allowed_roles', ts('Rôles autorisés'), $roleOpts);
+    if ($roleOpts) $this->addCheckBox('swissqr_allowed_roles', ts('Rôles autorisés', ['domain' => 'ch.ipik.swissQRinvoice']), $roleOpts);
 
     $this->addButtons([['type'=>'submit','name'=>ts('Enregistrer'),'isDefault'=>true]]);
     $this->setDefaults($this->_getDefaults());
@@ -92,6 +92,6 @@ class CRM_SwissQRInvoice_Form_Settings extends CRM_Core_Form {
       }
     }
 
-    CRM_Core_Session::setStatus(ts('Paramètres enregistrés.'), ts('Succès'), 'success');
+    CRM_Core_Session::setStatus(ts('Paramètres enregistrés.', ['domain' => 'ch.ipik.swissQRinvoice']), ts('Succès', ['domain' => 'ch.ipik.swissQRinvoice']), 'success');
   }
 }

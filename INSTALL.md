@@ -1,62 +1,102 @@
 # Installation — ch.ipik.swissQRinvoice
 
-## 1. Copier l'extension
+## 1. Install the extension files
 
-Placer le dossier `ch.ipik.swissQRinvoice` dans le répertoire d'extensions CiviCRM :
+Place the `ch.ipik.swissQRinvoice` folder in your CiviCRM extensions directory:
+
 ```
 /path/to/civicrm/ext/ch.ipik.swissQRinvoice/
 ```
 
-## 2. Installer la librairie QR suisse
+On WordPress this is usually `wp-content/uploads/civicrm/ext/`.
 
-La génération du QR code requiert la librairie PHP `sprain/swiss-qr-bill`.
+## 2. Dependencies
+
+The QR-bill generation relies on the `sprain/swiss-qr-bill` PHP library.
+
+**If you installed from a release archive**, the `vendor/` directory is already
+included and there is nothing to do — skip to step 3.
+
+**If you cloned the Git repository**, install the dependencies yourself:
 
 ```bash
 cd /path/to/civicrm/ext/ch.ipik.swissQRinvoice
 composer install --no-dev
 ```
 
-> Si `composer` n'est pas disponible sur le serveur :
-> `curl -sS https://getcomposer.org/installer | php && php composer.phar install --no-dev`
+The extension also attempts to run `composer install` automatically when it is
+enabled, provided `composer` is available in the server's `$PATH`. This is a
+convenience, not a guarantee: on restricted shared hosting it may silently do
+nothing, in which case the PDF will render without its QR slip and an error is
+written to the CiviCRM log.
 
-## 3. Activer l'extension dans CiviCRM
+## 3. Enable the extension
 
-**Administrer > Système > Extensions** → rechercher "Swiss QR Invoice" → Installer
+**Administer → System Settings → Extensions** → find "Swiss QR Invoice" → Install.
 
-## 4. Configurer l'extension
+## 4. Configure
 
-**Facturation > Paramètres** dans le menu CiviCRM :
-- Sélectionner le contact organisation expéditeur
-- Saisir l'IBAN (format CH : `CH88 0076 7000 S560 6787 8`)
-- Uploader logo et signature (chemins absolus sur le serveur)
-- Personnaliser le format de numérotation (ex. `{YEAR}-{SEQ:4}`)
-- Configurer le template d'email
+Go to **Facturation → Paramètres** in the CiviCRM menu and set:
 
-## 5. Logo et signature
+- the organisation contact used as the sender (name, address, postcode, city);
+- the IBAN, in Swiss format (e.g. `CH88 0076 7000 S560 6787 8`);
+- the absolute server paths to your logo and signature images;
+- the invoice numbering format (e.g. `{YEAR}-{SEQ:4}`);
+- the financial account used when an invoice is marked as paid.
 
-Uploader les fichiers sur le serveur (ex. via l'interface Infomaniak ou SFTP), puis noter le chemin absolu à saisir dans les paramètres.
+The administration interface is currently in French — see the note on
+translations in the README.
 
-Exemple : `/home/clients/xxx/files/kerma-logo.png`
+## 5. Logo and signature
 
-## Notes techniques
+Upload the image files to the server (SFTP, or your host's file manager), then
+enter their **absolute** path in the settings, for example:
 
-- **TCPDF** : déjà inclus dans CiviCRM, pas d'installation supplémentaire
-- **sprain/swiss-qr-bill** : génère les données QR conformes au Swiss Payment Standard (ISO 20022)
-- Le QR est intégré directement en bas de page 1 (modèle Invoice_0091)
-- Ligne de découpe conforme au standard bancaire suisse
-- Les permissions sont gérées via les rôles CiviCRM
+```
+/home/clients/xxxx/sites/example.org/wp-content/uploads/logo.png
+```
 
-## Structure des tables
+A relative or truncated path will be silently ignored and the image will simply
+not appear on the PDF. Both images have an offset setting (horizontal for the
+logo, vertical for the signature) to fine-tune their placement in millimetres.
 
-- `civicrm_swissqr_invoice` : une ligne par facture
-- `civicrm_swissqr_invoice_line` : lignes d'articles (n lignes par facture)
+## 6. Email template
 
-## Multilingue (v2)
+An HTML message template named `swissqrinvoice_send` is created automatically on
+install. Edit it under **Administer → Communications → Message Templates**, in
+the *User-Driven Messages* tab. The available tokens are listed in the README.
 
-La structure i18n est préparée (domaine `ch.ipik.swissQRinvoice`).
-Pour ajouter une langue : créer `l10n/de_DE/LC_MESSAGES/ch.ipik.swissQRinvoice.po`
+## Technical notes
 
-## Mass generation (v2)
+- **TCPDF** ships with CiviCRM; no separate installation is required.
+- **sprain/swiss-qr-bill** produces QR data compliant with the Swiss Payment
+  Standard (ISO 20022).
+- The QR payment slip is rendered on **page 2** of the PDF, as a full-width
+  payment part with the standard cutting lines.
+- Access is controlled by two CiviCRM permissions: `access swissqr invoices`
+  and `edit swissqr invoices`.
 
-La table `civicrm_swissqr_invoice` supporte déjà le batch.
-L'UI de génération en masse sera ajoutée dans une version ultérieure.
+## Database tables
+
+| Table | Contents |
+|---|---|
+| `civicrm_swissqr_invoice` | one row per invoice |
+| `civicrm_swissqr_invoice_line` | invoice line items (n rows per invoice) |
+| `civicrm_swissqr_service` | reusable service catalog |
+
+These tables are created on install and are **not** dropped when the extension
+is merely disabled.
+
+## Translations
+
+All `ts()` calls are scoped to the `ch.ipik.swissQRinvoice` domain, so the
+extension is ready for translation files. To add a language, create:
+
+```
+l10n/de_DE/LC_MESSAGES/ch.ipik.swissQRinvoice.po
+```
+
+## Planned
+
+Batch invoice generation for a group of contacts: the data model already
+supports it, the user interface does not exist yet.

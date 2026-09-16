@@ -2,7 +2,7 @@
 class CRM_SwissQRInvoice_Page_CancelDuplicate extends CRM_Core_Page {
   public function run() {
     if (!CRM_Core_Permission::check('edit swissqr invoices')) {
-      CRM_Core_Error::fatal(ts('Permission refusée.'));
+      CRM_Core_Error::fatal(ts('Permission refusée.', ['domain' => 'ch.ipik.swissQRinvoice']));
     }
     $id = (int) CRM_Utils_Request::retrieve('id', 'Integer');
     if ($id) {

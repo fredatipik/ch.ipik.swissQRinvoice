@@ -9,18 +9,18 @@ class CRM_SwissQRInvoice_Page_Cancel extends CRM_Core_Page {
       return;
     }
     $id = (int) CRM_Utils_Request::retrieve('id', 'Integer');
-    if (!$id) CRM_Core_Error::fatal(ts('Facture introuvable.'));
+    if (!$id) CRM_Core_Error::fatal(ts('Facture introuvable.', ['domain' => 'ch.ipik.swissQRinvoice']));
 
     $invoice = CRM_SwissQRInvoice_BAO_Invoice::getById($id);
-    if (!$invoice) CRM_Core_Error::fatal(ts('Facture introuvable.'));
+    if (!$invoice) CRM_Core_Error::fatal(ts('Facture introuvable.', ['domain' => 'ch.ipik.swissQRinvoice']));
 
     if ($invoice['status'] === 'paid') {
-      CRM_Core_Session::setStatus(ts('Une facture payée ne peut pas être annulée.'), ts('Erreur'), 'error');
+      CRM_Core_Session::setStatus(ts('Une facture payée ne peut pas être annulée.', ['domain' => 'ch.ipik.swissQRinvoice']), ts('Erreur', ['domain' => 'ch.ipik.swissQRinvoice']), 'error');
       CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/swissqr/invoice/list'));
       return;
     }
     if ($invoice['status'] === 'cancelled') {
-      CRM_Core_Session::setStatus(ts('Cette facture est déjà annulée.'), ts('Info'), 'info');
+      CRM_Core_Session::setStatus(ts('Cette facture est déjà annulée.', ['domain' => 'ch.ipik.swissQRinvoice']), ts('Info', ['domain' => 'ch.ipik.swissQRinvoice']), 'info');
       CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/swissqr/invoice/list'));
       return;
     }
@@ -30,8 +30,8 @@ class CRM_SwissQRInvoice_Page_Cancel extends CRM_Core_Page {
     if ($confirm) {
       CRM_SwissQRInvoice_BAO_Invoice::cancel($id);
       CRM_Core_Session::setStatus(
-        ts('Facture %1 annulée.', [1 => $invoice['invoice_number']]),
-        ts('Facture annulée'), 'success'
+        ts('Facture %1 annulée.', ['domain' => 'ch.ipik.swissQRinvoice', 1 => $invoice['invoice_number']]),
+        ts('Facture annulée', ['domain' => 'ch.ipik.swissQRinvoice']), 'success'
       );
       CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/swissqr/invoice/list'));
       return;
@@ -40,7 +40,7 @@ class CRM_SwissQRInvoice_Page_Cancel extends CRM_Core_Page {
     $this->assign('invoice', $invoice);
     $this->assign('cancelUrl', CRM_Utils_System::url('civicrm/swissqr/invoice/cancel', "id={$id}&confirm=1&reset=1"));
     $this->assign('backUrl',   CRM_Utils_System::url('civicrm/swissqr/invoice/list'));
-    CRM_Utils_System::setTitle(ts('Annuler la facture %1', [1 => $invoice['invoice_number']]));
+    CRM_Utils_System::setTitle(ts('Annuler la facture %1', ['domain' => 'ch.ipik.swissQRinvoice', 1 => $invoice['invoice_number']]));
     return parent::run();
   }
 }

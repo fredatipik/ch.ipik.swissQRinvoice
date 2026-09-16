@@ -166,7 +166,7 @@ class CRM_SwissQRInvoice_BAO_Invoice {
 
   public static function duplicate(int $invoiceId): array {
     $original = self::getById($invoiceId);
-    if (!$original) throw new CRM_Core_Exception(ts('Facture introuvable.'));
+    if (!$original) throw new CRM_Core_Exception(ts('Facture introuvable.', ['domain' => 'ch.ipik.swissQRinvoice']));
     $params = [
       'contact_id'              => $original['contact_id'],
       'organization_contact_id' => $original['organization_contact_id'],
