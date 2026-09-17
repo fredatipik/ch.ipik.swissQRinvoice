@@ -1,0 +1,334 @@
+# French translations for ch.ipik.swissQRinvoice package.
+# Copyright (C) 2026 IPIK
+# This file is distributed under the same license as the ch.ipik.swissQRinvoice package.
+# Automatically generated, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: ch.ipik.swissQRinvoice\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-09-17 14:54+0200\n"
+"PO-Revision-Date: 2026-09-17 14:03+0200\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: CRM/SwissQRInvoice/Page/Services.php:4
+msgid "Services"
+msgstr "Prestations"
+
+#: CRM/SwissQRInvoice/Page/Services.php:9
+#: CRM/SwissQRInvoice/Page/Duplicate.php:5
+#: CRM/SwissQRInvoice/Page/CancelDuplicate.php:5
+msgid "Permission denied."
+msgstr "Permission refusée."
+
+#: CRM/SwissQRInvoice/Page/Services.php:21
+msgid "Service saved."
+msgstr "Prestation enregistrée."
+
+#: CRM/SwissQRInvoice/Page/Services.php:21
+#: CRM/SwissQRInvoice/Page/Services.php:26
+#: CRM/SwissQRInvoice/Page/Services.php:45
+#: CRM/SwissQRInvoice/Page/Duplicate.php:12
+#: CRM/SwissQRInvoice/Form/Settings.php:95
+#: CRM/SwissQRInvoice/Form/MarkPaid.php:41
+#: CRM/SwissQRInvoice/Form/Invoice.php:125
+msgid "Success"
+msgstr "Succès"
+
+#: CRM/SwissQRInvoice/Page/Services.php:26
+#: CRM/SwissQRInvoice/Page/Services.php:45
+msgid "Service deleted."
+msgstr "Prestation supprimée."
+
+#: CRM/SwissQRInvoice/Page/Duplicate.php:8 CRM/SwissQRInvoice/Page/PDF.php:5
+msgid "Missing ID."
+msgstr "ID manquant."
+
+#: CRM/SwissQRInvoice/Page/Duplicate.php:11
+msgid "Invoice duplicated: %1"
+msgstr "Facture dupliquée : %1"
+
+#: CRM/SwissQRInvoice/Page/Cancel.php:12 CRM/SwissQRInvoice/Page/Cancel.php:15
+#: CRM/SwissQRInvoice/Page/PDF.php:7 CRM/SwissQRInvoice/Form/MarkPaid.php:14
+#: CRM/SwissQRInvoice/Form/MarkPaid.php:38
+#: CRM/SwissQRInvoice/Form/Invoice.php:10 CRM/SwissQRInvoice/Form/Send.php:14
+#: CRM/SwissQRInvoice/Form/Send.php:124 CRM/SwissQRInvoice/BAO/Invoice.php:169
+msgid "Invoice not found."
+msgstr "Facture introuvable."
+
+#: CRM/SwissQRInvoice/Page/Cancel.php:18
+msgid "A paid invoice cannot be cancelled."
+msgstr "Une facture payée ne peut pas être annulée."
+
+#: CRM/SwissQRInvoice/Page/Cancel.php:18 CRM/SwissQRInvoice/Form/Send.php:16
+#: CRM/SwissQRInvoice/Form/Send.php:156
+msgid "Error"
+msgstr "Erreur"
+
+#: CRM/SwissQRInvoice/Page/Cancel.php:23
+msgid "This invoice is already cancelled."
+msgstr "Cette facture est déjà annulée."
+
+#: CRM/SwissQRInvoice/Page/Cancel.php:23
+msgid "Info"
+msgstr "Info"
+
+#: CRM/SwissQRInvoice/Page/Cancel.php:33
+msgid "Invoice %1 cancelled."
+msgstr "Facture %1 annulée."
+
+#: CRM/SwissQRInvoice/Page/Cancel.php:34
+msgid "Invoice cancelled"
+msgstr "Facture annulée"
+
+#: CRM/SwissQRInvoice/Page/Cancel.php:43
+msgid "Cancel invoice %1"
+msgstr "Annuler la facture %1"
+
+#: CRM/SwissQRInvoice/Page/InvoiceList.php:33
+msgid "Billing — All invoices"
+msgstr "Facturation — Toutes les factures"
+
+#: CRM/SwissQRInvoice/Form/Settings.php:4
+msgid "Sender organisation contact"
+msgstr "Contact organisation expéditeur"
+
+#: CRM/SwissQRInvoice/Form/Settings.php:5
+msgid "IBAN"
+msgstr "IBAN"
+
+#: CRM/SwissQRInvoice/Form/Settings.php:6
+msgid "Signatory name"
+msgstr "Nom du signataire"
+
+#: CRM/SwissQRInvoice/Form/Settings.php:7
+msgid "VAT note"
+msgstr "Mention TVA"
+
+#: CRM/SwissQRInvoice/Form/Settings.php:8
+msgid "Numbering format"
+msgstr "Format numérotation"
+
+#: CRM/SwissQRInvoice/Form/Settings.php:9
+#: CRM/SwissQRInvoice/Form/Settings.php:10
+msgid "QR reference template"
+msgstr "Template référence QR"
+
+#: CRM/SwissQRInvoice/Form/Settings.php:13
+msgid "Logo path (absolute)"
+msgstr "Chemin logo (absolu)"
+
+#: CRM/SwissQRInvoice/Form/Settings.php:14
+msgid "Logo — horizontal offset (mm)"
+msgstr "Logo — décalage horizontal (mm)"
+
+#: CRM/SwissQRInvoice/Form/Settings.php:15
+msgid "Logo — space below logo (mm)"
+msgstr "Logo — espace sous le logo (mm)"
+
+#: CRM/SwissQRInvoice/Form/Settings.php:16
+msgid "Signature path (absolute)"
+msgstr "Chemin signature (absolu)"
+
+#: CRM/SwissQRInvoice/Form/Settings.php:17
+msgid "Signature — vertical offset (mm)"
+msgstr "Signature — décalage vertical (mm)"
+
+#: CRM/SwissQRInvoice/Form/Settings.php:18
+msgid "Single page PDF (QR at bottom of page 1)"
+msgstr "PDF une seule page (QR en bas de page 1)"
+
+#: CRM/SwissQRInvoice/Form/Settings.php:24
+msgid "-- Same as Donations (default) --"
+msgstr "-- Même que Dons (défaut) --"
+
+#: CRM/SwissQRInvoice/Form/Settings.php:26
+msgid "Financial account (QR Invoice)"
+msgstr "Compte financier (Facture QR)"
+
+#: CRM/SwissQRInvoice/Form/Settings.php:33
+msgid "Authorised roles"
+msgstr "Rôles autorisés"
+
+#: CRM/SwissQRInvoice/Form/Settings.php:35
+#: CRM/SwissQRInvoice/Form/Invoice.php:69
+msgid "Save"
+msgstr "Enregistrer"
+
+#: CRM/SwissQRInvoice/Form/Settings.php:95
+msgid "Settings saved."
+msgstr "Paramètres"
+
+#: CRM/SwissQRInvoice/Form/MarkPaid.php:19
+msgid "Amount received (CHF)"
+msgstr "Montant reçu (CHF)"
+
+#: CRM/SwissQRInvoice/Form/MarkPaid.php:20
+msgid "Payment date"
+msgstr "Payé à ce jour"
+
+#: CRM/SwissQRInvoice/Form/MarkPaid.php:22
+msgid "Confirm payment"
+msgstr "Confirmer le paiement"
+
+#: CRM/SwissQRInvoice/Form/MarkPaid.php:23 CRM/SwissQRInvoice/Form/Send.php:37
+msgid "Cancel"
+msgstr "Annuler"
+
+#: CRM/SwissQRInvoice/Form/MarkPaid.php:41
+msgid "Invoice marked as paid."
+msgstr "Marquer comme payée"
+
+#: CRM/SwissQRInvoice/Form/Invoice.php:45
+msgid "Recipient"
+msgstr "Destinataire"
+
+#: CRM/SwissQRInvoice/Form/Invoice.php:51
+msgid "Sender organisation"
+msgstr "Organisation expéditeur"
+
+#: CRM/SwissQRInvoice/Form/Invoice.php:53
+msgid "Invoice date"
+msgstr "Date de facturation"
+
+#: CRM/SwissQRInvoice/Form/Invoice.php:54
+msgid "Due date"
+msgstr "Échéance : %1"
+
+#: CRM/SwissQRInvoice/Form/Invoice.php:55
+msgid "Invoice no."
+msgstr "N° facture"
+
+#: CRM/SwissQRInvoice/Form/Invoice.php:56
+msgid "QR reference"
+msgstr "Référence QR"
+
+#: CRM/SwissQRInvoice/Form/Invoice.php:57
+msgid "Terms"
+msgstr "Conditions"
+
+#: CRM/SwissQRInvoice/Form/Invoice.php:58
+#: CRM/SwissQRInvoice/PDF/Generator.php:111
+msgid "Paid to date"
+msgstr "Payé à ce jour"
+
+#: CRM/SwissQRInvoice/Form/Invoice.php:60
+msgid "Discount"
+msgstr "Rabais"
+
+#: CRM/SwissQRInvoice/Form/Invoice.php:65
+msgid "Discount value"
+msgstr "Valeur du rabais"
+
+#: CRM/SwissQRInvoice/Form/Invoice.php:125
+msgid "Invoice %1 saved."
+msgstr "Facture %1 enregistrée."
+
+#: CRM/SwissQRInvoice/Form/Send.php:16
+msgid "Cannot send a cancelled invoice."
+msgstr "Impossible d'envoyer une facture annulée."
+
+#: CRM/SwissQRInvoice/Form/Send.php:31
+msgid "Recipient email"
+msgstr "Email destinataire"
+
+#: CRM/SwissQRInvoice/Form/Send.php:32
+msgid "Subject"
+msgstr "Objet"
+
+#: CRM/SwissQRInvoice/Form/Send.php:33
+msgid "Message"
+msgstr "Message"
+
+#: CRM/SwissQRInvoice/Form/Send.php:36
+msgid "Send"
+msgstr "Envoyer"
+
+#: CRM/SwissQRInvoice/Form/Send.php:152
+msgid "Invoice sent to %1."
+msgstr "Facture envoyée à %1."
+
+#: CRM/SwissQRInvoice/Form/Send.php:153
+msgid "Successfully sent"
+msgstr "Envoi réussi"
+
+#: CRM/SwissQRInvoice/Form/Send.php:156
+msgid "Error sending invoice."
+msgstr "Erreur lors de l'envoi."
+
+#: CRM/SwissQRInvoice/PDF/Generator.php:78
+msgid "Due date: %1"
+msgstr "Échéance : %1"
+
+#: CRM/SwissQRInvoice/PDF/Generator.php:85
+msgid "Item"
+msgstr "Article"
+
+#: CRM/SwissQRInvoice/PDF/Generator.php:85
+msgid "Description"
+msgstr "Description"
+
+#: CRM/SwissQRInvoice/PDF/Generator.php:85
+msgid "Unit cost"
+msgstr "Coût unit."
+
+#: CRM/SwissQRInvoice/PDF/Generator.php:85
+msgid "Qty"
+msgstr "Qté"
+
+#: CRM/SwissQRInvoice/PDF/Generator.php:85
+msgid "Total excl. VAT"
+msgstr "Total HT"
+
+#: CRM/SwissQRInvoice/PDF/Generator.php:111
+msgid "Total"
+msgstr "Total"
+
+#: CRM/SwissQRInvoice/PDF/Generator.php:111
+msgid "Balance due"
+msgstr "Solde dû"
+
+#: swissQRinvoice.php:151 swissQRinvoice.php:265
+msgid "Download PDF"
+msgstr "Télécharger PDF"
+
+#: swissQRinvoice.php:153 swissQRinvoice.php:267
+msgid "Mark as paid"
+msgstr "Marquer comme payée"
+
+#: swissQRinvoice.php:154 swissQRinvoice.php:268
+msgid "SwissQR Settings"
+msgstr "Paramètres SwissQR"
+
+#: swissQRinvoice.php:201
+msgid "Settings"
+msgstr "Paramètres"
+
+#: swissQRinvoice.php:285
+msgid "Swiss QR Invoice: view invoices"
+msgstr "Swiss QR Invoice : consulter les factures"
+
+#: swissQRinvoice.php:286
+msgid "View the list and details of QR invoices."
+msgstr "Voir la liste et les détails des factures QR."
+
+#: swissQRinvoice.php:289
+msgid "Swiss QR Invoice: create and edit invoices"
+msgstr "Swiss QR Invoice : créer et modifier des factures"
+
+#: swissQRinvoice.php:290
+msgid "Create, edit, send and mark QR invoices as paid."
+msgstr "Créer, éditer, envoyer et marquer payées les factures QR."
+
+#: swissQRinvoice.php:355 swissQRinvoice.php:370
+msgid "QR Invoices"
+msgstr "Factures QR"
+
+#~ msgid "Impossible d'envoyer une facture annulée."
+#~ msgstr "Impossible d'envoyer une facture annulée."

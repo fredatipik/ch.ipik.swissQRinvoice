@@ -10,7 +10,7 @@
     <div class="content">CHF {$invoice.total|string_format:"%.2f"}</div>
   </div>
   <div class="crm-section">
-    <div class="label">Solde dû</div>
+    <div class="label">{ts}Balance due{/ts}</div>
     <div class="content"><strong>CHF {$invoice.amount_due|string_format:"%.2f"}</strong></div>
   </div>
   <div class="crm-section">
@@ -21,7 +21,7 @@
     <div class="label">{$form.paid_date.label}</div>
     <div class="content"><input type="date" name="paid_date" value="{$form.paid_date.value|default:''}" class="crm-form-text"></div>
   </div>
-  <p class="description">Une contribution CiviCRM sera créée automatiquement.</p>
+  <p class="description">{ts}A CiviCRM contribution will be created automatically.{/ts}</p>
   <div class="crm-submit-buttons">
     {include file="CRM/common/formButtons.tpl" location="bottom"}
   </div>

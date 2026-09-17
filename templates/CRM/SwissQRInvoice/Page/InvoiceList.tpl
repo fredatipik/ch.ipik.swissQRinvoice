@@ -17,7 +17,7 @@
   {if $canEdit}
   <div class="action-link" style="margin-bottom:8px">
     <a href="{crmURL p='civicrm/swissqr/invoice/new' q='reset=1'}" class="button"><span><i class="crm-i fa-plus-circle"></i> Nouvelle facture</span></a>
-    <a href="{crmURL p='civicrm/swissqr/services' q='reset=1'}" class="button" style="margin-left:8px"><span><i class="crm-i fa-list"></i> Prestations</span></a>
+    <a href="{crmURL p='civicrm/swissqr/services' q='reset=1'}" class="button" style="margin-left:8px"><span><i class="crm-i fa-list"></i> {ts}Services{/ts}</span></a>
   </div>
   {/if}
 
@@ -42,9 +42,9 @@
         <select name="status" style="height:30px">
           <option value="">Tous</option>
           <option value="draft"     {if $filters.status == 'draft'}selected{/if}>Brouillon</option>
-          <option value="sent"      {if $filters.status == 'sent'}selected{/if}>Envoyée</option>
-          <option value="paid"      {if $filters.status == 'paid'}selected{/if}>Payée</option>
-          <option value="cancelled" {if $filters.status == 'cancelled'}selected{/if}>Annulée</option>
+          <option value="sent"      {if $filters.status == 'sent'}selected{/if}>{ts}Sent{/ts}</option>
+          <option value="paid"      {if $filters.status == 'paid'}selected{/if}>{ts}Paid{/ts}</option>
+          <option value="cancelled" {if $filters.status == 'cancelled'}selected{/if}>{ts}Cancelled{/ts}</option>
         </select>
       </div>
 
@@ -66,7 +66,7 @@
       {if $filters.status || $filters.contact_id || $filters.date_from || $filters.date_to}
       <div class="swissqr-filter-group">
         <label>&nbsp;</label>
-        <a href="{crmURL p='civicrm/swissqr/invoice/list' q='reset=1'}" class="button" style="height:30px;line-height:30px"><span>Réinitialiser</span></a>
+        <a href="{crmURL p='civicrm/swissqr/invoice/list' q='reset=1'}" class="button" style="height:30px;line-height:30px"><span>{ts}Reset{/ts}</span></a>
       </div>
       {/if}
     </div>
@@ -81,10 +81,10 @@
       <th>N° Facture</th>
       <th>Contact</th>
       <th>Date</th>
-      <th>Échéance</th>
+      <th>{ts}Due date{/ts}</th>
       <th style="text-align:right">Montant</th>
-      <th style="text-align:right">Solde dû</th>
-      <th>Créé par</th>
+      <th style="text-align:right">{ts}Balance due{/ts}</th>
+      <th>{ts}Created by{/ts}</th>
       <th>Statut</th>
       <th class="crm-no-sort">Actions</th>
     </tr>
@@ -103,15 +103,15 @@
         {if $inv.status == 'draft'}
           <span class="swissqr-badge swissqr-draft">Brouillon</span>
         {elseif $inv.status == 'sent'}
-          <span class="swissqr-badge swissqr-sent">Envoyée</span>
+          <span class="swissqr-badge swissqr-sent">{ts}Sent{/ts}</span>
         {elseif $inv.status == 'paid'}
-          <span class="swissqr-badge swissqr-paid">Payée le {$inv.paid_date|crmDate}</span>
+          <span class="swissqr-badge swissqr-paid">{ts 1=$inv.paid_date|crmDate}Paid on %1{/ts}</span>
         {elseif $inv.status == 'cancelled'}
-          <span class="swissqr-badge swissqr-cancelled">Annulée</span>
+          <span class="swissqr-badge swissqr-cancelled">{ts}Cancelled{/ts}</span>
         {/if}
       </td>
       <td style="white-space:nowrap">
-        <a href="{crmURL p='civicrm/swissqr/invoice/pdf' q="id=`$inv.id`"}" title="Télécharger PDF" target="_blank"><i class="crm-i fa-download"></i></a>
+        <a href="{crmURL p='civicrm/swissqr/invoice/pdf' q="id=`$inv.id`"}" title="{ts}Download PDF{/ts}" target="_blank"><i class="crm-i fa-download"></i></a>
         {if $inv.status != 'cancelled'}
         &nbsp;
         {if $canEdit && $inv.status == 'draft'}
@@ -124,7 +124,7 @@
         <a href="{crmURL p='civicrm/swissqr/invoice/send' q="id=`$inv.id`&reset=1"}" title="Envoyer par email"><i class="crm-i fa-envelope"></i></a>
         &nbsp;
         {if $inv.status != 'paid'}
-        <a href="{crmURL p='civicrm/swissqr/invoice/markpaid' q="id=`$inv.id`&reset=1"}" title="Marquer comme payée"><i class="crm-i fa-check-circle" style="color:#2e7d32"></i></a>
+        <a href="{crmURL p='civicrm/swissqr/invoice/markpaid' q="id=`$inv.id`&reset=1"}" title="{ts}Mark as paid{/ts}"><i class="crm-i fa-check-circle" style="color:#2e7d32"></i></a>
         &nbsp;
         <a href="{crmURL p='civicrm/swissqr/invoice/cancel' q="id=`$inv.id`&reset=1"}" title="Annuler la facture" onclick="return confirm('Annuler la facture {$inv.invoice_number|escape} ?')"><i class="crm-i fa-ban" style="color:#c62828"></i></a>
         {/if}
@@ -147,8 +147,8 @@
 
   {else}
   <div class="messages status no-popup">
-    <i class="crm-i fa-info-circle"></i> Aucune facture trouvée.
-    {if $canEdit}<a href="{crmURL p='civicrm/swissqr/invoice/new' q='reset=1'}">Créer une première facture</a>.{/if}
+    <i class="crm-i fa-info-circle"></i> {ts}No invoice found.{/ts}
+    {if $canEdit}<a href="{crmURL p='civicrm/swissqr/invoice/new' q='reset=1'}">{ts}Create your first invoice{/ts}</a>.{/if}
   </div>
   {/if}
 </div>
@@ -170,7 +170,7 @@
       language: {
         decimal:  ',',
         thousands: "'",
-        zeroRecords: 'Aucune facture trouvée.'
+        zeroRecords: '{ts}No invoice found.{/ts}'
       }
     });
   }

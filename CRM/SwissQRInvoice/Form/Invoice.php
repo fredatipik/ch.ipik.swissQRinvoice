@@ -7,7 +7,7 @@ class CRM_SwissQRInvoice_Form_Invoice extends CRM_Core_Form {
     $id = CRM_Utils_Request::retrieve('id', 'Integer');
     if ($id) {
       $this->_invoice = CRM_SwissQRInvoice_BAO_Invoice::getById((int)$id);
-      if (!$this->_invoice) CRM_Core_Error::fatal(ts('Facture introuvable.', ['domain' => 'ch.ipik.swissQRinvoice']));
+      if (!$this->_invoice) CRM_Core_Error::fatal(ts('Invoice not found.', ['domain' => 'ch.ipik.swissQRinvoice']));
     }
 
     // URL d'annulation — si duplicata, le supprimer
@@ -42,31 +42,31 @@ class CRM_SwissQRInvoice_Form_Invoice extends CRM_Core_Form {
   }
 
   public function buildQuickForm() {
-    $this->addEntityRef('contact_id', ts('Destinataire', ['domain' => 'ch.ipik.swissQRinvoice']), ['create' => true], true);
+    $this->addEntityRef('contact_id', ts('Recipient', ['domain' => 'ch.ipik.swissQRinvoice']), ['create' => true], true);
 
     $orgId   = (int) Civi::settings()->get('swissqr_org_contact_id');
     $orgs    = civicrm_api3('Contact', 'get', ['contact_type' => 'Organization', 'return' => 'id,display_name', 'options' => ['limit' => 50]]);
     $orgOpts = ['' => '-- Choisir --'];
     foreach ($orgs['values'] as $o) $orgOpts[$o['id']] = $o['display_name'];
-    $this->add('select', 'organization_contact_id', ts('Organisation expéditeur', ['domain' => 'ch.ipik.swissQRinvoice']), $orgOpts, true);
+    $this->add('select', 'organization_contact_id', ts('Sender organisation', ['domain' => 'ch.ipik.swissQRinvoice']), $orgOpts, true);
 
-    $this->add('text',     'invoice_date',   ts('Date de facturation', ['domain' => 'ch.ipik.swissQRinvoice']), ['type' => 'date', 'class' => 'crm-form-text'], true);
-    $this->add('text',     'due_date',       ts('Échéance', ['domain' => 'ch.ipik.swissQRinvoice']),            ['type' => 'date', 'class' => 'crm-form-text']);
-    $this->add('text',     'invoice_number', ts('N° facture', ['domain' => 'ch.ipik.swissQRinvoice']),          ['class' => 'huge']);
-    $this->add('text',     'reference',      ts('Référence QR', ['domain' => 'ch.ipik.swissQRinvoice']),        ['class' => 'huge']);
-    $this->add('textarea', 'notes',          ts('Conditions', ['domain' => 'ch.ipik.swissQRinvoice']),          ['rows' => 2, 'cols' => 60, 'class' => 'huge']);
-    $this->add('text',     'amount_paid',    ts('Payé à ce jour', ['domain' => 'ch.ipik.swissQRinvoice']),      ['class' => 'six']);
+    $this->add('text',     'invoice_date',   ts('Invoice date', ['domain' => 'ch.ipik.swissQRinvoice']), ['type' => 'date', 'class' => 'crm-form-text'], true);
+    $this->add('text',     'due_date',       ts('Due date', ['domain' => 'ch.ipik.swissQRinvoice']),            ['type' => 'date', 'class' => 'crm-form-text']);
+    $this->add('text',     'invoice_number', ts('Invoice no.', ['domain' => 'ch.ipik.swissQRinvoice']),          ['class' => 'huge']);
+    $this->add('text',     'reference',      ts('QR reference', ['domain' => 'ch.ipik.swissQRinvoice']),        ['class' => 'huge']);
+    $this->add('textarea', 'notes',          ts('Terms', ['domain' => 'ch.ipik.swissQRinvoice']),          ['rows' => 2, 'cols' => 60, 'class' => 'huge']);
+    $this->add('text',     'amount_paid',    ts('Paid to date', ['domain' => 'ch.ipik.swissQRinvoice']),      ['class' => 'six']);
 
-    $this->add('select', 'discount_type', ts('Rabais', ['domain' => 'ch.ipik.swissQRinvoice']), [
+    $this->add('select', 'discount_type', ts('Discount', ['domain' => 'ch.ipik.swissQRinvoice']), [
       'none'    => 'Aucun',
       'amount'  => 'Montant fixe (CHF)',
       'percent' => 'Pourcentage (%)',
     ]);
-    $this->add('text',   'discount_value',  ts('Valeur du rabais', ['domain' => 'ch.ipik.swissQRinvoice']), ['class' => 'six']);
+    $this->add('text',   'discount_value',  ts('Discount value', ['domain' => 'ch.ipik.swissQRinvoice']), ['class' => 'six']);
     $this->add('hidden', 'contribution_id', '');
 
     $this->addButtons([
-      ['type' => 'submit', 'name' => ts('Enregistrer', ['domain' => 'ch.ipik.swissQRinvoice']), 'isDefault' => true],
+      ['type' => 'submit', 'name' => ts('Save', ['domain' => 'ch.ipik.swissQRinvoice']), 'isDefault' => true],
     ]);
     $this->assign('cancelURL', $this->_cancelURL);
 
@@ -122,7 +122,7 @@ class CRM_SwissQRInvoice_Form_Invoice extends CRM_Core_Form {
     $params['lines'] = json_decode($linesJson, true) ?: [];
 
     $invoice = CRM_SwissQRInvoice_BAO_Invoice::save($params);
-    CRM_Core_Session::setStatus(ts('Facture %1 enregistrée.', ['domain' => 'ch.ipik.swissQRinvoice', 1 => $invoice['invoice_number']]), ts('Succès', ['domain' => 'ch.ipik.swissQRinvoice']), 'success');
+    CRM_Core_Session::setStatus(ts('Invoice %1 saved.', ['domain' => 'ch.ipik.swissQRinvoice', 1 => $invoice['invoice_number']]), ts('Success', ['domain' => 'ch.ipik.swissQRinvoice']), 'success');
     CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/swissqr/invoice/list'));
   }
 }

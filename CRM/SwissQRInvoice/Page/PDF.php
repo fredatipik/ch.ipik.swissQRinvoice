@@ -2,9 +2,9 @@
 class CRM_SwissQRInvoice_Page_PDF extends CRM_Core_Page {
   public function run() {
     $id = (int) CRM_Utils_Request::retrieve('id','Integer');
-    if (!$id) CRM_Core_Error::fatal('ID manquant.');
+    if (!$id) CRM_Core_Error::fatal(ts('Missing ID.'));
     $invoice = CRM_SwissQRInvoice_BAO_Invoice::getById($id);
-    if (!$invoice) CRM_Core_Error::fatal('Facture introuvable.');
+    if (!$invoice) CRM_Core_Error::fatal(ts('Invoice not found.'));
 
     $generator = new CRM_SwissQRInvoice_PDF_Generator($invoice);
     $pdf = $generator->generate();

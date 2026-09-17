@@ -101,7 +101,7 @@ Madame, Monsieur {contact_name},
 
 Veuillez trouver ci-joint la facture n° {invoice_number} du {invoice_date} pour un montant de {amount_due} CHF.
 
-Nous vous remercions de votre règlement dans les délais.
+Thank you for your timely payment.
 
 Avec nos meilleures salutations,
 {organization_name}

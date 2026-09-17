@@ -37,7 +37,7 @@ function _swissQRinvoice_composer_install(): void {
   }
 
   if (!file_exists($composerJson)) {
-    CRM_Core_Error::debug_log_message('SwissQRInvoice: composer.json introuvable, vendor non installé.');
+    CRM_Core_Error::debug_log_message('SwissQRInvoice: composer.json not found, vendor not installed.');
     return;
   }
 
@@ -50,7 +50,7 @@ function _swissQRinvoice_composer_install(): void {
     $composerBin = trim(shell_exec('which composer 2>/dev/null') ?: '');
   }
   if (!$composerBin || !file_exists($composerBin)) {
-    CRM_Core_Error::debug_log_message('SwissQRInvoice: composer introuvable, vendor non installé.');
+    CRM_Core_Error::debug_log_message('SwissQRInvoice: composer not found, vendor not installed.');
     return;
   }
 
@@ -148,10 +148,10 @@ function _swissQRinvoice_install_routes(): void {
     ['civicrm/swissqr/invoice/list',     'Toutes les factures',  'CRM_SwissQRInvoice_Page_InvoiceList', $argUser],
     ['civicrm/swissqr/invoice/new',      'Nouvelle facture',     'CRM_SwissQRInvoice_Form_Invoice',     $argUser],
     ['civicrm/swissqr/invoice/edit',     'Modifier la facture',  'CRM_SwissQRInvoice_Form_Invoice',     $argUser],
-    ['civicrm/swissqr/invoice/pdf',      'Télécharger PDF',      'CRM_SwissQRInvoice_Page_PDF',         $argUser],
+    ['civicrm/swissqr/invoice/pdf',      ts('Download PDF'),      'CRM_SwissQRInvoice_Page_PDF',         $argUser],
     ['civicrm/swissqr/invoice/send',     'Envoyer la facture',   'CRM_SwissQRInvoice_Form_Send',        $argEdit],
-    ['civicrm/swissqr/invoice/markpaid', 'Marquer comme payée',  'CRM_SwissQRInvoice_Form_MarkPaid',    $argEdit],
-    ['civicrm/admin/swissqr/settings',   'Paramètres SwissQR',   'CRM_SwissQRInvoice_Form_Settings',    $argAdmin],
+    ['civicrm/swissqr/invoice/markpaid', ts('Mark as paid'),  'CRM_SwissQRInvoice_Form_MarkPaid',    $argEdit],
+    ['civicrm/admin/swissqr/settings',   ts('SwissQR Settings'),   'CRM_SwissQRInvoice_Form_Settings',    $argAdmin],
     ['civicrm/swissqr/services',         'Prestations',          'CRM_SwissQRInvoice_Page_Services',    $argUser],
     ['civicrm/swissqr/invoice/duplicate', 'Dupliquer',            'CRM_SwissQRInvoice_Page_Duplicate',   $argEdit],
     ['civicrm/swissqr/invoice/cancel',    'Annuler la facture',   'CRM_SwissQRInvoice_Page_Cancel',          $argEdit],
@@ -198,7 +198,7 @@ function _swissQRinvoice_install_navigation(): void {
     ['Toutes les factures', 'swissqr_list',     'civicrm/swissqr/invoice/list?reset=1',    'access CiviCRM',       10, 0],
     ['Nouvelle facture',    'swissqr_new',      'civicrm/swissqr/invoice/new?reset=1',     'access CiviCRM',       20, 0],
     ['Prestations',         'swissqr_services', 'civicrm/swissqr/services?reset=1',        'access CiviCRM',       30, 0],
-    ['Paramètres',          'swissqr_settings', 'civicrm/admin/swissqr/settings?reset=1',  'administer CiviCRM',   40, 1],
+    [ts('Settings'),          'swissqr_settings', 'civicrm/admin/swissqr/settings?reset=1',  'administer CiviCRM',   40, 1],
   ];
 
   foreach ($items as [$label, $name, $url, $perm, $weight, $sep]) {
@@ -262,10 +262,10 @@ function swissQRinvoice_civicrm_alterMenu(&$items) {
     'civicrm/swissqr/invoice/list'     => ['Toutes les factures',  'CRM_SwissQRInvoice_Page_InvoiceList'],
     'civicrm/swissqr/invoice/new'      => ['Nouvelle facture',     'CRM_SwissQRInvoice_Form_Invoice'],
     'civicrm/swissqr/invoice/edit'     => ['Modifier la facture',  'CRM_SwissQRInvoice_Form_Invoice'],
-    'civicrm/swissqr/invoice/pdf'      => ['Télécharger PDF',      'CRM_SwissQRInvoice_Page_PDF'],
+    'civicrm/swissqr/invoice/pdf'      => [ts('Download PDF'),      'CRM_SwissQRInvoice_Page_PDF'],
     'civicrm/swissqr/invoice/send'     => ['Envoyer la facture',   'CRM_SwissQRInvoice_Form_Send',    'edit swissqr invoices'],
-    'civicrm/swissqr/invoice/markpaid' => ['Marquer comme payée',  'CRM_SwissQRInvoice_Form_MarkPaid', 'edit swissqr invoices'],
-    'civicrm/admin/swissqr/settings'   => ['Paramètres SwissQR',   'CRM_SwissQRInvoice_Form_Settings'],
+    'civicrm/swissqr/invoice/markpaid' => [ts('Mark as paid'),  'CRM_SwissQRInvoice_Form_MarkPaid', 'edit swissqr invoices'],
+    'civicrm/admin/swissqr/settings'   => [ts('SwissQR Settings'),   'CRM_SwissQRInvoice_Form_Settings'],
     'civicrm/swissqr/services'         => ['Prestations',          'CRM_SwissQRInvoice_Page_Services'],
     'civicrm/swissqr/invoice/duplicate' => ['Dupliquer la facture', 'CRM_SwissQRInvoice_Page_Duplicate'],
     'civicrm/swissqr/invoice/cancel'    => ['Annuler la facture',   'CRM_SwissQRInvoice_Page_Cancel', 'edit swissqr invoices'],
@@ -282,12 +282,12 @@ function swissQRinvoice_civicrm_alterMenu(&$items) {
 
 function swissQRinvoice_civicrm_permission(&$permissions) {
   $permissions['access swissqr invoices'] = [
-    'label'       => ts('Swiss QR Invoice: consulter les factures', ['domain' => 'ch.ipik.swissQRinvoice']),
-    'description' => ts('Voir la liste et les détails des factures QR.', ['domain' => 'ch.ipik.swissQRinvoice']),
+    'label'       => ts('Swiss QR Invoice: view invoices', ['domain' => 'ch.ipik.swissQRinvoice']),
+    'description' => ts('View the list and details of QR invoices.', ['domain' => 'ch.ipik.swissQRinvoice']),
   ];
   $permissions['edit swissqr invoices'] = [
-    'label'       => ts('Swiss QR Invoice: créer et modifier des factures', ['domain' => 'ch.ipik.swissQRinvoice']),
-    'description' => ts('Créer, éditer, envoyer et marquer payées les factures QR.', ['domain' => 'ch.ipik.swissQRinvoice']),
+    'label'       => ts('Swiss QR Invoice: create and edit invoices', ['domain' => 'ch.ipik.swissQRinvoice']),
+    'description' => ts('Create, edit, send and mark QR invoices as paid.', ['domain' => 'ch.ipik.swissQRinvoice']),
   ];
 }
 
@@ -316,9 +316,9 @@ function _swissQRinvoice_install_msg_template(): void {
 <p>Veuillez trouver ci-joint la facture n° <strong>{invoice_number}</strong>
 du {invoice_date} pour un montant de <strong>CHF {amount_due}</strong>.</p>
 
-<p>Nous vous remercions de votre règlement avant l'échéance indiquée sur la facture.</p>
+<p><p>Thank you for your payment before the due date indicated on the invoice.</p>
 
-<p>N'hésitez pas à nous contacter pour toute question.</p>
+<p>Do not hesitate to contact us for any questions.</p>
 
 <p>Avec nos meilleures salutations,<br>
 {organization_name}</p>
@@ -327,7 +327,7 @@ HTML;
   $bodyText = "Madame, Monsieur {contact_name},\n\n"
     . "Veuillez trouver ci-joint la facture n° {invoice_number} "
     . "du {invoice_date} pour un montant de CHF {amount_due}.\n\n"
-    . "Nous vous remercions de votre règlement avant l'échéance indiquée sur la facture.\n\n"
+    . "Thank you for your payment before the due date indicated on the invoice.\n\n"
     . "Avec nos meilleures salutations,\n{organization_name}";
 
   CRM_Core_DAO::executeQuery(
@@ -352,7 +352,7 @@ function swissQRinvoice_civicrm_tabset($tabsetName, &$tabs, $context) {
   $tabs['swissqr_invoices'] = [
     'id'     => 'swissqr_invoices',
     'url'    => CRM_Utils_System::url('civicrm/swissqr/invoice/list', "cid={$contactID}&reset=1"),
-    'title'  => ts('Factures QR', ['domain' => 'ch.ipik.swissQRinvoice']) . ($count ? " ({$count})" : ''),
+    'title'  => ts('QR Invoices', ['domain' => 'ch.ipik.swissQRinvoice']) . ($count ? " ({$count})" : ''),
     'weight' => 150,
     'valid'  => 1,
     'active' => 1,
@@ -367,7 +367,7 @@ function swissQRinvoice_civicrm_tabs(&$tabs, $contactID) {
   $tabs[] = [
     'id'     => 'swissqr_invoices',
     'url'    => CRM_Utils_System::url('civicrm/swissqr/invoice/list', "cid={$contactID}&reset=1"),
-    'title'  => ts('Factures QR', ['domain' => 'ch.ipik.swissQRinvoice']) . ($count ? " ({$count})" : ''),
+    'title'  => ts('QR Invoices', ['domain' => 'ch.ipik.swissQRinvoice']) . ($count ? " ({$count})" : ''),
     'weight' => 150,
   ];
 }

@@ -3,49 +3,49 @@
 
   <item>
     <path>civicrm/swissqr/invoice/list</path>
-    <title>Facturation — Toutes les factures</title>
+    <title>Billing — All invoices</title>
     <page_callback>CRM_SwissQRInvoice_Page_InvoiceList</page_callback>
     <access_arguments>access CiviCRM</access_arguments>
   </item>
 
   <item>
     <path>civicrm/swissqr/invoice/new</path>
-    <title>Nouvelle facture</title>
+    <title>New invoice</title>
     <page_callback>CRM_SwissQRInvoice_Form_Invoice</page_callback>
     <access_arguments>access CiviCRM</access_arguments>
   </item>
 
   <item>
     <path>civicrm/swissqr/invoice/edit</path>
-    <title>Modifier la facture</title>
+    <title>Edit invoice</title>
     <page_callback>CRM_SwissQRInvoice_Form_Invoice</page_callback>
     <access_arguments>access CiviCRM</access_arguments>
   </item>
 
   <item>
     <path>civicrm/swissqr/invoice/pdf</path>
-    <title>Télécharger PDF</title>
+    <title>Download PDF</title>
     <page_callback>CRM_SwissQRInvoice_Page_PDF</page_callback>
     <access_arguments>access CiviCRM</access_arguments>
   </item>
 
   <item>
     <path>civicrm/swissqr/invoice/send</path>
-    <title>Envoyer la facture</title>
+    <title>Send invoice</title>
     <page_callback>CRM_SwissQRInvoice_Form_Send</page_callback>
     <access_arguments>access CiviCRM</access_arguments>
   </item>
 
   <item>
     <path>civicrm/swissqr/invoice/markpaid</path>
-    <title>Marquer comme payée</title>
+    <title>Mark as paid</title>
     <page_callback>CRM_SwissQRInvoice_Form_MarkPaid</page_callback>
     <access_arguments>access CiviCRM</access_arguments>
   </item>
 
   <item>
     <path>civicrm/admin/swissqr/settings</path>
-    <title>Swiss QR Invoice — Paramètres</title>
+    <title>Swiss QR Invoice — Settings</title>
     <page_callback>CRM_SwissQRInvoice_Form_Settings</page_callback>
     <access_arguments>administer CiviCRM</access_arguments>
   </item>

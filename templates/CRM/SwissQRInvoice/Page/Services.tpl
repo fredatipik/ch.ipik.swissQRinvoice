@@ -1,6 +1,6 @@
 {crmScope extensionKey='ch.ipik.swissQRinvoice'}
 <div class="crm-content-block crm-block">
-  <h3>Prestations</h3>
+  <h3>{ts}Services{/ts}</h3>
 
   <div style="background:#f9f9f9;border:1px solid #ddd;padding:12px;margin-bottom:16px;border-radius:4px">
     <h4 style="margin-top:0">{if $editService}Modifier la prestation{else}Nouvelle prestation{/if}</h4>
@@ -60,7 +60,7 @@
     </tbody>
   </table>
   {else}
-  <div class="messages status no-popup">Aucune prestation définie.</div>
+  <div class="messages status no-popup">{ts}No service defined.{/ts}</div>
   {/if}
 </div>
 {/crmScope}

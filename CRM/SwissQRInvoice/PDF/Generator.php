@@ -75,14 +75,14 @@ class CRM_SwissQRInvoice_PDF_Generator {
     $pdf->SetFont('helvetica','B',16);$pdf->SetX(self::MARGIN_L);$pdf->Cell(50,9,'Facture',0,0,'L');
     $pdf->SetFont('helvetica','',12);$pdf->Cell(0,9,$this->invoice['invoice_number'],0,1,'L');
     $pdf->SetFont('helvetica','',8.5);$pdf->SetX(self::MARGIN_L);$pdf->Cell(0,4.5,$date,0,1,'L');
-    if($due){$pdf->SetTextColor(100,100,100);$pdf->SetX(self::MARGIN_L);$pdf->Cell(0,4,"Échéance : {$due}",0,1,'L');$pdf->SetTextColor(0,0,0);}
+    if($due){$pdf->SetTextColor(100,100,100);$pdf->SetX(self::MARGIN_L);$pdf->Cell(0,4,ts('Due date: %1', [1 => $due]),0,1,'L');$pdf->SetTextColor(0,0,0);}
     $pdf->Ln(5);
   }
 
   private function renderLines(TCPDF $pdf): void {
     $cw=[45,82,22,12,14];$align=['L','L','R','R','R'];
     $pdf->SetFont('helvetica','B',8);$pdf->SetFillColor(235,235,235);
-    foreach(['Article','Description','Coût unit.','Qté','Total HT'] as $k=>$h) $pdf->Cell($cw[$k],6,$h,'B',0,$align[$k],true);
+    foreach([ts('Item'), ts('Description'), ts('Unit cost'), ts('Qty'), ts('Total excl. VAT')] as $k=>$h) $pdf->Cell($cw[$k],6,$h,'B',0,$align[$k],true);
     $pdf->Ln();$pdf->SetFillColor(255,255,255);
     $pdf->SetFont('helvetica','',8.5);
     foreach($this->invoice['lines'] as $i=>$line){
@@ -108,7 +108,7 @@ class CRM_SwissQRInvoice_PDF_Generator {
       $pdf->Cell($vW,$lH,'Rabais',0,0,'L');$pdf->Cell(15,$lH,'- '.number_format((float)$this->invoice['discount'],2,'.',chr(39)),0,1,'R');
       $pdf->SetTextColor(0,0,0);
     }
-    foreach([['Total',number_format((float)$this->invoice['total'],2,'.',chr(39)),true],['Payé à ce jour',number_format((float)$this->invoice['amount_paid'],2,'.',chr(39)),false],['Solde dû',number_format((float)$this->invoice['amount_due'],2,'.',chr(39)),true]] as[$label,$value,$bold]){
+    foreach([[ts('Total'),number_format((float)$this->invoice[ts('Total')],2,'.',chr(39)),true],[[ts('Paid to date'),number_format((float)$this->invoice['amount_paid'],2,'.',chr(39)),false],[ts('Balance due'),number_format((float)$this->invoice['amount_due'],2,'.',chr(39)),true]] as[$label,$value,$bold]){
       $pdf->SetFont('helvetica',$bold?'B':'',9);$pdf->SetX($lX);
       $pdf->Cell($vW,$lH,$label,0,0,'L');$pdf->Cell(15,$lH,'CHF '.$value,0,1,'R');
     }

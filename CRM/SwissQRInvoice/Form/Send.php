@@ -11,9 +11,9 @@ class CRM_SwissQRInvoice_Form_Send extends CRM_Core_Form {
       $id = (int) CRM_Core_Session::singleton()->get('swissqr_send_invoice_id');
       $this->_invoice = $id ? CRM_SwissQRInvoice_BAO_Invoice::getById($id) : [];
     }
-    if (!$this->_invoice) CRM_Core_Error::fatal(ts('Facture introuvable.', ['domain' => 'ch.ipik.swissQRinvoice']));
+    if (!$this->_invoice) CRM_Core_Error::fatal(ts('Invoice not found.', ['domain' => 'ch.ipik.swissQRinvoice']));
     if ($this->_invoice['status'] === 'cancelled') {
-      CRM_Core_Session::setStatus(ts('Impossible d\'envoyer une facture annulée.', ['domain' => 'ch.ipik.swissQRinvoice']), ts('Erreur', ['domain' => 'ch.ipik.swissQRinvoice']), 'error');
+      CRM_Core_Session::setStatus(ts('Cannot send a cancelled invoice.', ['domain' => 'ch.ipik.swissQRinvoice']), ts('Error', ['domain' => 'ch.ipik.swissQRinvoice']), 'error');
       CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/swissqr/invoice/list'));
     }
   }
@@ -28,13 +28,13 @@ class CRM_SwissQRInvoice_Form_Send extends CRM_Core_Form {
     } catch (Exception $e) { $email = []; }
 
     $this->add('hidden', 'invoice_id', $this->_invoice['id']);
-    $this->add('text',   'to_email', ts('Email destinataire', ['domain' => 'ch.ipik.swissQRinvoice']), ['class' => 'huge'], true);
-    $this->add('text',   'subject',  ts('Objet', ['domain' => 'ch.ipik.swissQRinvoice']),              ['class' => 'huge'], true);
+    $this->add('text',   'to_email', ts('Recipient email', ['domain' => 'ch.ipik.swissQRinvoice']), ['class' => 'huge'], true);
+    $this->add('text',   'subject',  ts('Subject', ['domain' => 'ch.ipik.swissQRinvoice']),              ['class' => 'huge'], true);
     $this->add('wysiwyg', 'body_html', ts('Message', ['domain' => 'ch.ipik.swissQRinvoice']), ['rows' => 10, 'cols' => 80]);
 
     $this->addButtons([
-      ['type' => 'submit', 'name' => ts('Envoyer', ['domain' => 'ch.ipik.swissQRinvoice']), 'isDefault' => true],
-      ['type' => 'cancel', 'name' => ts('Annuler', ['domain' => 'ch.ipik.swissQRinvoice'])],
+      ['type' => 'submit', 'name' => ts('Send', ['domain' => 'ch.ipik.swissQRinvoice']), 'isDefault' => true],
+      ['type' => 'cancel', 'name' => ts('Cancel', ['domain' => 'ch.ipik.swissQRinvoice'])],
     ]);
 
     [$subject, $bodyHtml] = $this->_loadMsgTemplate();
@@ -121,7 +121,7 @@ class CRM_SwissQRInvoice_Form_Send extends CRM_Core_Form {
       $id = (int)($vals['invoice_id'] ?? 0);
       if ($id) $this->_invoice = CRM_SwissQRInvoice_BAO_Invoice::getById($id);
     }
-    if (empty($this->_invoice)) throw new CRM_Core_Exception('Facture introuvable.');
+    if (empty($this->_invoice)) throw new CRM_Core_Exception(ts('Invoice not found.'));
 
     $generator = new CRM_SwissQRInvoice_PDF_Generator($this->_invoice);
     $pdf       = $generator->generate();
@@ -149,11 +149,11 @@ class CRM_SwissQRInvoice_Form_Send extends CRM_Core_Form {
     if ($result) {
       CRM_SwissQRInvoice_BAO_Invoice::recordSent($this->_invoice['id'], $vals['to_email']);
       CRM_Core_Session::setStatus(
-        ts('Facture envoyée à %1.', ['domain' => 'ch.ipik.swissQRinvoice', 1 => $vals['to_email']]),
-        ts('Envoi réussi', ['domain' => 'ch.ipik.swissQRinvoice']), 'success'
+        ts('Invoice sent to %1.', ['domain' => 'ch.ipik.swissQRinvoice', 1 => $vals['to_email']]),
+        ts('Successfully sent', ['domain' => 'ch.ipik.swissQRinvoice']), 'success'
       );
     } else {
-      CRM_Core_Session::setStatus(ts("Erreur lors de l'envoi.", ['domain' => 'ch.ipik.swissQRinvoice']), ts('Erreur', ['domain' => 'ch.ipik.swissQRinvoice']), 'error');
+      CRM_Core_Session::setStatus(ts("Error sending invoice.", ['domain' => 'ch.ipik.swissQRinvoice']), ts('Error', ['domain' => 'ch.ipik.swissQRinvoice']), 'error');
     }
     CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/swissqr/invoice/list'));
   }

@@ -1,12 +1,12 @@
 <?php
 class CRM_SwissQRInvoice_Page_Services extends CRM_Core_Page {
   public function run() {
-    CRM_Utils_System::setTitle(ts('Prestations', ['domain' => 'ch.ipik.swissQRinvoice']));
+    CRM_Utils_System::setTitle(ts('Services', ['domain' => 'ch.ipik.swissQRinvoice']));
 
     // Traitement POST direct
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       if (!CRM_Core_Permission::check('edit swissqr invoices')) {
-        CRM_Core_Error::fatal(ts('Permission refusée.', ['domain' => 'ch.ipik.swissQRinvoice']));
+        CRM_Core_Error::fatal(ts('Permission denied.', ['domain' => 'ch.ipik.swissQRinvoice']));
       }
       $action = $_POST['action'] ?? 'save';
       if ($action === 'save') {
@@ -18,12 +18,12 @@ class CRM_SwissQRInvoice_Page_Services extends CRM_Core_Page {
           'unit_price'  => (float)($_POST['unit_price'] ?? 0),
           'is_active'   => 1,
         ]);
-        CRM_Core_Session::setStatus(ts('Prestation enregistrée.', ['domain' => 'ch.ipik.swissQRinvoice']), ts('Succès', ['domain' => 'ch.ipik.swissQRinvoice']), 'success');
+        CRM_Core_Session::setStatus(ts('Service saved.', ['domain' => 'ch.ipik.swissQRinvoice']), ts('Success', ['domain' => 'ch.ipik.swissQRinvoice']), 'success');
       }
       if ($action === 'delete') {
         $sid = (int)($_POST['sid'] ?? 0);
         if ($sid) CRM_SwissQRInvoice_BAO_Invoice::deleteService($sid);
-        CRM_Core_Session::setStatus(ts('Prestation supprimée.', ['domain' => 'ch.ipik.swissQRinvoice']), ts('Succès', ['domain' => 'ch.ipik.swissQRinvoice']), 'success');
+        CRM_Core_Session::setStatus(ts('Service deleted.', ['domain' => 'ch.ipik.swissQRinvoice']), ts('Success', ['domain' => 'ch.ipik.swissQRinvoice']), 'success');
       }
       // Redirect POST → GET pour éviter le double submit
       CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/swissqr/services', 'reset=1'));
@@ -42,7 +42,7 @@ class CRM_SwissQRInvoice_Page_Services extends CRM_Core_Page {
     $doDelete = CRM_Utils_Request::retrieve('action', 'String') === 'delete';
     if ($doDelete && $deleteId) {
       CRM_SwissQRInvoice_BAO_Invoice::deleteService($deleteId);
-      CRM_Core_Session::setStatus(ts('Prestation supprimée.', ['domain' => 'ch.ipik.swissQRinvoice']), ts('Succès', ['domain' => 'ch.ipik.swissQRinvoice']), 'success');
+      CRM_Core_Session::setStatus(ts('Service deleted.', ['domain' => 'ch.ipik.swissQRinvoice']), ts('Success', ['domain' => 'ch.ipik.swissQRinvoice']), 'success');
       CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/swissqr/services', 'reset=1'));
       return;
     }

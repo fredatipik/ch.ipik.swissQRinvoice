@@ -20,7 +20,7 @@
   </div>
   <div class="crm-section">
     <div class="label">{$form.invoice_number.label}</div>
-    <div class="content">{$form.invoice_number.html} <span class="description">Laisser vide pour numérotation automatique</span></div>
+    <div class="content">{$form.invoice_number.html} <span class="description">{ts}Leave blank for automatic numbering{/ts}</span></div>
   </div>
   <div class="crm-section">
     <div class="label">{$form.reference.label}</div>
@@ -46,7 +46,7 @@
         <th style="padding:5px 6px;text-align:left;width:25%">Article</th>
         <th style="padding:5px 6px;text-align:left">Description</th>
         <th style="padding:5px 6px;text-align:right;width:100px">Prix unit.</th>
-        <th style="padding:5px 6px;text-align:right;width:70px">Qté</th>
+        <th style="padding:5px 6px;text-align:right;width:70px">{ts}Qty{/ts}</th>
         <th style="padding:5px 6px;text-align:right;width:100px">Total HT</th>
         <th style="width:30px"></th>
       </tr>
@@ -86,7 +86,7 @@
 
   <div class="crm-section">
     <div class="label">{$form.amount_paid.label}</div>
-    <div class="content">{$form.amount_paid.html} &nbsp; Solde dû : <strong id="swissqr-amount-due">CHF 0.00</strong></div>
+    <div class="content">{$form.amount_paid.html} &nbsp; {ts}Balance due{/ts}: <strong id="swissqr-amount-due">CHF 0.00</strong></div>
   </div>
   <div class="crm-section">
     <div class="label">{$form.notes.label}</div>
