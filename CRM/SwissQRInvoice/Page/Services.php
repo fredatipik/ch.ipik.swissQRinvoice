@@ -6,7 +6,7 @@ class CRM_SwissQRInvoice_Page_Services extends CRM_Core_Page {
     // Traitement POST direct
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       if (!CRM_Core_Permission::check('edit swissqr invoices')) {
-        CRM_Core_Error::fatal(ts('Permission denied.', ['domain' => 'ch.ipik.swissQRinvoice']));
+        throw new CRM_Core_Exception(ts('Permission denied.', ['domain' => 'ch.ipik.swissQRinvoice']));
       }
       $action = $_POST['action'] ?? 'save';
       if ($action === 'save') {

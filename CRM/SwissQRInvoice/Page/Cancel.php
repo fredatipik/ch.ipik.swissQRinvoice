@@ -9,10 +9,10 @@ class CRM_SwissQRInvoice_Page_Cancel extends CRM_Core_Page {
       return;
     }
     $id = (int) CRM_Utils_Request::retrieve('id', 'Integer');
-    if (!$id) CRM_Core_Error::fatal(ts('Invoice not found.', ['domain' => 'ch.ipik.swissQRinvoice']));
+    if (!$id) throw new CRM_Core_Exception(ts('Invoice not found.', ['domain' => 'ch.ipik.swissQRinvoice']));
 
     $invoice = CRM_SwissQRInvoice_BAO_Invoice::getById($id);
-    if (!$invoice) CRM_Core_Error::fatal(ts('Invoice not found.', ['domain' => 'ch.ipik.swissQRinvoice']));
+    if (!$invoice) throw new CRM_Core_Exception(ts('Invoice not found.', ['domain' => 'ch.ipik.swissQRinvoice']));
 
     if ($invoice['status'] === 'paid') {
       CRM_Core_Session::setStatus(ts('A paid invoice cannot be cancelled.', ['domain' => 'ch.ipik.swissQRinvoice']), ts('Error', ['domain' => 'ch.ipik.swissQRinvoice']), 'error');

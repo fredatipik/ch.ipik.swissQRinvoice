@@ -7,7 +7,6 @@ class CRM_SwissQRInvoice_Form_Settings extends CRM_Core_Form {
     $this->add('text','swissqr_vat_note',       ts('VAT note', ['domain' => 'ch.ipik.swissQRinvoice']),       ['class'=>'huge']);
     $this->add('text','swissqr_invoice_number_format', ts('Numbering format', ['domain' => 'ch.ipik.swissQRinvoice']), ['class'=>'huge','placeholder'=>'{YEAR}-{SEQ:4}']);
     $this->add('text','swissqr_qr_reference_template', ts('QR reference template', ['domain' => 'ch.ipik.swissQRinvoice']), ['class'=>'huge','placeholder'=>'Facture N° {NUMBER}']);
-    $this->add('text','swissqr_qr_reference_template', ts('QR reference template', ['domain' => 'ch.ipik.swissQRinvoice']), ['class'=>'huge','placeholder'=>'Facture N° {NUMBER}']);
     // swissqr_email_body_template et swissqr_email_subject_template conservés en base (fallback Send.php)
     // mais retirés de l'UI — édition via CiviCRM > Templates de messages > "swissqrinvoice_send"
     $this->add('text','swissqr_logo_path',       ts('Logo path (absolute)', ['domain' => 'ch.ipik.swissQRinvoice']),      ['class'=>'huge']);
@@ -16,12 +15,13 @@ class CRM_SwissQRInvoice_Form_Settings extends CRM_Core_Form {
     $this->add('text','swissqr_signature_path',  ts('Signature path (absolute)', ['domain' => 'ch.ipik.swissQRinvoice']), ['class'=>'huge']);
     $this->add('text','swissqr_signature_offset_y', ts('Signature — vertical offset (mm)', ['domain' => 'ch.ipik.swissQRinvoice']), ['class'=>'four','placeholder'=>'0']);
     $this->add('checkbox','swissqr_single_page_pdf', ts('Single page PDF (QR at bottom of page 1)', ['domain' => 'ch.ipik.swissQRinvoice']));
+    $this->add('checkbox','swissqr_replace_native_invoice', ts('Replace CiviCRM invoice with the QR invoice', ['domain' => 'ch.ipik.swissQRinvoice']));
 
     // Compte financier pour Facture QR
     $faDao = CRM_Core_DAO::executeQuery(
       "SELECT id, name FROM civicrm_financial_account WHERE is_active = 1 ORDER BY name"
     );
-    $faOpts = ['' => ts('-- Same as Donations (default) --')];
+    $faOpts = ['' => ts('-- Same as Donations (default) --', ['domain' => 'ch.ipik.swissQRinvoice'])];
     while ($faDao->fetch()) $faOpts[$faDao->id] = $faDao->name;
     $this->add('select','swissqr_financial_account_id', ts('Financial account (QR Invoice)', ['domain' => 'ch.ipik.swissQRinvoice']), $faOpts);
 
@@ -32,7 +32,7 @@ class CRM_SwissQRInvoice_Form_Settings extends CRM_Core_Form {
     }
     if ($roleOpts) $this->addCheckBox('swissqr_allowed_roles', ts('Authorised roles', ['domain' => 'ch.ipik.swissQRinvoice']), $roleOpts);
 
-    $this->addButtons([['type'=>'submit','name'=>ts('Save'),'isDefault'=>true]]);
+    $this->addButtons([['type'=>'submit','name'=>ts('Save', ['domain' => 'ch.ipik.swissQRinvoice']),'isDefault'=>true]]);
     $this->setDefaults($this->_getDefaults());
   }
 
@@ -41,7 +41,8 @@ class CRM_SwissQRInvoice_Form_Settings extends CRM_Core_Form {
              'swissqr_invoice_number_format','swissqr_qr_reference_template','swissqr_email_body_template',
              'swissqr_email_subject_template','swissqr_logo_path','swissqr_logo_offset_x',
              'swissqr_logo_margin_bottom','swissqr_signature_path','swissqr_allowed_roles',
-             'swissqr_financial_account_id','swissqr_single_page_pdf','swissqr_signature_offset_y'];
+             'swissqr_financial_account_id','swissqr_single_page_pdf','swissqr_signature_offset_y',
+             'swissqr_replace_native_invoice'];
     $defaults = [];
     foreach ($keys as $k) $defaults[$k] = Civi::settings()->get($k);
     if (!$defaults['swissqr_email_body_template'])
@@ -59,8 +60,10 @@ class CRM_SwissQRInvoice_Form_Settings extends CRM_Core_Form {
              'swissqr_invoice_number_format','swissqr_qr_reference_template','swissqr_email_body_template',
              'swissqr_email_subject_template','swissqr_logo_path','swissqr_logo_offset_x',
              'swissqr_logo_margin_bottom','swissqr_signature_path','swissqr_allowed_roles',
-             'swissqr_financial_account_id','swissqr_single_page_pdf','swissqr_signature_offset_y'];
+             'swissqr_financial_account_id','swissqr_single_page_pdf','swissqr_signature_offset_y',
+             'swissqr_replace_native_invoice'];
     foreach ($keys as $k) Civi::settings()->set($k, $vals[$k] ?? null);
+    foreach (['swissqr_single_page_pdf','swissqr_replace_native_invoice'] as $k) Civi::settings()->set($k, !empty($vals[$k]) ? 1 : 0);
 
     // Si un compte financier est choisi, lier au type "Facture QR"
     $faId = (int)($vals['swissqr_financial_account_id'] ?? 0);

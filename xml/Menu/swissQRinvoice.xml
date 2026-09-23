@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="iso-8859-1" ?>
+<!-- Keep in sync with _swissQRinvoice_routes() in swissQRinvoice.php -->
 <menu>
   <item>
     <path>civicrm/swissqr/invoice/list</path>
@@ -28,12 +29,42 @@
     <path>civicrm/swissqr/invoice/send</path>
     <title>Send invoice</title>
     <page_callback>CRM_SwissQRInvoice_Form_Send</page_callback>
-    <access_arguments>access CiviCRM</access_arguments>
+    <access_arguments>edit swissqr invoices</access_arguments>
   </item>
   <item>
     <path>civicrm/swissqr/invoice/markpaid</path>
     <title>Mark as paid</title>
     <page_callback>CRM_SwissQRInvoice_Form_MarkPaid</page_callback>
+    <access_arguments>edit swissqr invoices</access_arguments>
+  </item>
+  <item>
+    <path>civicrm/swissqr/invoice/duplicate</path>
+    <title>Duplicate invoice</title>
+    <page_callback>CRM_SwissQRInvoice_Page_Duplicate</page_callback>
+    <access_arguments>edit swissqr invoices</access_arguments>
+  </item>
+  <item>
+    <path>civicrm/swissqr/invoice/cancel</path>
+    <title>Cancel invoice</title>
+    <page_callback>CRM_SwissQRInvoice_Page_Cancel</page_callback>
+    <access_arguments>edit swissqr invoices</access_arguments>
+  </item>
+  <item>
+    <path>civicrm/swissqr/invoice/cancel-duplicate</path>
+    <title>Discard duplicate</title>
+    <page_callback>CRM_SwissQRInvoice_Page_CancelDuplicate</page_callback>
+    <access_arguments>edit swissqr invoices</access_arguments>
+  </item>
+  <item>
+    <path>civicrm/swissqr/task/bulk</path>
+    <title>Create QR invoices</title>
+    <page_callback>CRM_SwissQRInvoice_Form_Bulk</page_callback>
+    <access_arguments>edit swissqr invoices</access_arguments>
+  </item>
+  <item>
+    <path>civicrm/swissqr/services</path>
+    <title>Services</title>
+    <page_callback>CRM_SwissQRInvoice_Page_Services</page_callback>
     <access_arguments>access CiviCRM</access_arguments>
   </item>
   <item>
@@ -43,9 +74,10 @@
     <access_arguments>administer CiviCRM</access_arguments>
   </item>
   <item>
-    <path>civicrm/swissqr/services</path>
-    <title>Services</title>
-    <page_callback>CRM_SwissQRInvoice_Page_Services</page_callback>
-    <access_arguments>access CiviCRM</access_arguments>
+    <path>civicrm/swissqr/slip</path>
+    <title>Donation slip</title>
+    <page_callback>CRM_SwissQRInvoice_Page_Slip</page_callback>
+    <access_arguments>*always allow*</access_arguments>
+    <is_public>true</is_public>
   </item>
 </menu>

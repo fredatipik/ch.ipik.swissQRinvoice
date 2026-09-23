@@ -15,4 +15,5 @@ return [
   'swissqr_default_lang'           => ['group'=>'domain','name'=>'swissqr_default_lang','type'=>'String','default'=>'fr','add'=>'1.0'],
   'swissqr_single_page_pdf'        => ['group'=>'domain','name'=>'swissqr_single_page_pdf','type'=>'Boolean','default'=>false,'add'=>'1.0'],
   'swissqr_signature_offset_y'     => ['group'=>'domain','name'=>'swissqr_signature_offset_y','type'=>'Float','default'=>0,'add'=>'1.0'],
+  'swissqr_replace_native_invoice' => ['group'=>'domain','name'=>'swissqr_replace_native_invoice','type'=>'Boolean','default'=>TRUE,'add'=>'1.0'],
 ];

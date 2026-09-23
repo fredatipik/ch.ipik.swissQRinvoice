@@ -7,7 +7,14 @@ class CRM_SwissQRInvoice_Form_Invoice extends CRM_Core_Form {
     $id = CRM_Utils_Request::retrieve('id', 'Integer');
     if ($id) {
       $this->_invoice = CRM_SwissQRInvoice_BAO_Invoice::getById((int)$id);
-      if (!$this->_invoice) CRM_Core_Error::fatal(ts('Invoice not found.', ['domain' => 'ch.ipik.swissQRinvoice']));
+      if (!$this->_invoice) throw new CRM_Core_Exception(ts('Invoice not found.', ['domain' => 'ch.ipik.swissQRinvoice']));
+      if (!CRM_SwissQRInvoice_BAO_Invoice::isEditable($this->_invoice)) {
+        CRM_Core_Session::setStatus(
+          ts('Invoice %1 has been issued and can no longer be edited. Cancel it and create a new one, or duplicate it.', ['domain' => 'ch.ipik.swissQRinvoice', 1 => $this->_invoice['invoice_number']]),
+          ts('Invoice issued', ['domain' => 'ch.ipik.swissQRinvoice']), 'info'
+        );
+        CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/swissqr/invoice/list', 'reset=1'));
+      }
     }
 
     // URL d'annulation — si duplicata, le supprimer
@@ -64,9 +71,11 @@ class CRM_SwissQRInvoice_Form_Invoice extends CRM_Core_Form {
     ]);
     $this->add('text',   'discount_value',  ts('Discount value', ['domain' => 'ch.ipik.swissQRinvoice']), ['class' => 'six']);
     $this->add('hidden', 'contribution_id', '');
+    $this->add('hidden', 'invoice_id', $this->_invoice['id'] ?? '');
 
     $this->addButtons([
-      ['type' => 'submit', 'name' => ts('Save', ['domain' => 'ch.ipik.swissQRinvoice']), 'isDefault' => true],
+      ['type' => 'submit', 'name' => ts('Save', ['domain' => 'ch.ipik.swissQRinvoice']), 'isDefault' => TRUE],
+      ['type' => 'submit', 'subName' => 'send', 'name' => ts('Save and send', ['domain' => 'ch.ipik.swissQRinvoice'])],
     ]);
     $this->assign('cancelURL', $this->_cancelURL);
 
@@ -116,13 +125,20 @@ class CRM_SwissQRInvoice_Form_Invoice extends CRM_Core_Form {
       'contribution_id'         => $vals['contribution_id'] ?: null,
     ];
     if (!empty($vals['invoice_number'])) $params['invoice_number'] = $vals['invoice_number'];
-    if (!empty($this->_invoice['id']))   $params['id']             = $this->_invoice['id'];
+    // The id travels with the form, not only in the URL: a lost id used to
+    // save an edited invoice as a new one, with the same number.
+    $invoiceId = (int) ($vals['invoice_id'] ?? 0) ?: (int) ($this->_invoice['id'] ?? 0);
+    if ($invoiceId) $params['id'] = $invoiceId;
 
     $linesJson      = $_POST['lines_json'] ?? '[]';
     $params['lines'] = json_decode($linesJson, true) ?: [];
 
     $invoice = CRM_SwissQRInvoice_BAO_Invoice::save($params);
     CRM_Core_Session::setStatus(ts('Invoice %1 saved.', ['domain' => 'ch.ipik.swissQRinvoice', 1 => $invoice['invoice_number']]), ts('Success', ['domain' => 'ch.ipik.swissQRinvoice']), 'success');
+
+    if (substr((string) $this->controller->getButtonName(), -5) === '_send') {
+      CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/swissqr/invoice/send', 'id=' . $invoice['id'] . '&reset=1'));
+    }
     CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/swissqr/invoice/list'));
   }
 }

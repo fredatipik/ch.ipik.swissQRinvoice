@@ -2,10 +2,10 @@
 class CRM_SwissQRInvoice_Page_Duplicate extends CRM_Core_Page {
   public function run() {
     if (!CRM_Core_Permission::check('edit swissqr invoices')) {
-      CRM_Core_Error::fatal(ts('Permission denied.', ['domain' => 'ch.ipik.swissQRinvoice']));
+      throw new CRM_Core_Exception(ts('Permission denied.', ['domain' => 'ch.ipik.swissQRinvoice']));
     }
     $id = (int) CRM_Utils_Request::retrieve('id', 'Integer');
-    if (!$id) CRM_Core_Error::fatal(ts('Missing ID.', ['domain' => 'ch.ipik.swissQRinvoice']));
+    if (!$id) throw new CRM_Core_Exception(ts('Missing ID.', ['domain' => 'ch.ipik.swissQRinvoice']));
     $new = CRM_SwissQRInvoice_BAO_Invoice::duplicate($id);
     CRM_Core_Session::setStatus(
       ts('Invoice duplicated: %1', ['domain' => 'ch.ipik.swissQRinvoice', 1 => $new['invoice_number']]),

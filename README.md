@@ -1,96 +1,94 @@
 # ch.ipik.swissQRinvoice — Swiss QR Invoice for CiviCRM
 
-A CiviCRM extension for generating PDF invoices with a **Swiss QR-bill** (Swiss Payment Standard / ISO 20022) payment slip, linked to CiviCRM contacts and contributions.
+A CiviCRM extension for issuing PDF invoices and donation slips with a **Swiss QR-bill** payment part, built on CiviCRM's own contributions so that payments, bank reconciliation and accounting exports use the standard tools.
 
 ## Status
 
-Alpha. In production on one site since September 2026, actively maintained.
-Feedback and issues are very welcome.
+Alpha, actively maintained. Feedback and issues are very welcome.
 
 ## Language
 
-The user interface is currently **French only**. All translatable strings are
-scoped to the `ch.ipik.swissQRinvoice` domain, so translation files can be
-dropped in without touching the code — an English translation is planned, and
-contributions for other languages are welcome. Documentation is in English.
+The interface is available in **English and French**. All strings are scoped to the `ch.ipik.swissQRinvoice` domain; to add a language, see *Translations* in [INSTALL.md](INSTALL.md).
+
+## How it works
+
+Every invoice is backed by a native CiviCRM contribution:
+
+1. **Draft** — an invoice can be edited freely.
+2. **Issued** — when it is sent (or created in bulk), a *Pending* contribution is created for its total. The QR slip carries a structured reference, also stored in the contribution's `invoice_id`.
+3. **Paid** — payments are recorded on that contribution, by hand or by importing the bank's camt file with [CiviBanking](docs/CIVIBANKING.md). CiviCRM sets the contribution to *Partially paid* or *Completed*, and the invoice follows.
+
+Because the contribution is a normal one, it appears in contribution searches, in the native *Email invoice* action and in accounting batches.
 
 ## Features
 
-- **Invoice management** — create, edit, duplicate and cancel invoices linked to CiviCRM contacts
-- **Dynamic line items** — free-form lines, or picked from a reusable service catalog
-- **Discounts** — fixed amount (CHF) or percentage
-- **PDF generation** — configurable layout with logo and signature, Swiss QR-bill on page 2
-- **Email sending** — HTML template stored in CiviCRM Message Templates, with CiviCRM tokens (`{contact.first_name}`, `{contact.email_greeting_display}`) and invoice tokens (`{invoice_number}`, `{amount_due}`)
-- **Mark as paid** — creates a linked CiviCRM contribution automatically
-- **Contact tab** — invoice history visible from the contact record
-- **Invoice list** — filter by contact (autocomplete), status and date range; sortable columns
-- **Auto-install** — routes, navigation menu, financial type and email template are created on activation
+- **Invoices** — create, edit (while in draft), duplicate and cancel; free lines or a reusable service catalogue; fixed or percentage discounts
+- **Swiss QR-bill, specification v2.3** — structured addresses, structured references (ISO 11649 creditor reference, or QR reference with a QR-IBAN), additional information text
+- **PDF** — logo and signature, payment part on page 2, or at the bottom of page 1 when the invoice is short enough
+- **Email** — per-invoice sending with a CiviCRM message template, or CiviCRM's native *Email invoice* action on contributions, which then attaches the QR invoice
+- **Bulk invoicing** — *Actions → Create QR invoices* on any contact search, processed through a CiviCRM queue
+- **Donation appeals** — a CiviMail token inserts a personal link to a one-page donation slip, with no amount and no personal data; the reference identifies the donor and the mailing
+- **Bank reconciliation** — references designed to be matched by CiviBanking from camt.053 / camt.054 files
+- **Contact tab**, filterable and sortable invoice list, automatic installation of routes, menu, financial type and email template
 
 ## Requirements
 
 - CiviCRM 6.0 or later (developed and tested on 6.15)
-- WordPress (tested on shared hosting at Infomaniak); not yet tested on Drupal or Backdrop
+- WordPress (tested on Infomaniak shared hosting); Drupal and Backdrop not yet tested
 - PHP 8.1+
-
-Only the combination above has been tested. Reports from other setups are welcome.
+- Optional: [CiviBanking](https://civicrm.org/extensions/civibanking) for bank reconciliation, [Invoice Helper](https://lab.civicrm.org/extensions/invoicehelper) for queued sending of native invoices
 
 ## Dependencies
 
-Installed via Composer, and bundled in the release archives:
+Bundled in release archives (`vendor/`), installed with Composer from a Git checkout:
 
-- [`sprain/swiss-qr-bill`](https://github.com/sprain/php-swiss-qr-bill) — Swiss QR-bill generation
-- [`tecnickcom/tcpdf`](https://github.com/tecnickcom/TCPDF) — PDF rendering (also shipped with CiviCRM)
+- [`sprain/swiss-qr-bill`](https://github.com/sprain/php-swiss-qr-bill) — QR-bill generation and validation
+- TCPDF, shipped with CiviCRM
 
 ## Installation
 
-1. Download the latest release archive and extract it into your CiviCRM extensions directory
+1. Extract the release archive into your CiviCRM extensions directory
 2. **Administer → System Settings → Extensions** → enable "Swiss QR Invoice"
-3. **Facturation → Paramètres** → set the sender organisation, IBAN, logo and signature
+3. **Invoicing → Settings** → sender organisation (with a full postal address), IBAN, logo, signature
 
-If you install from a Git clone rather than a release archive, run
-`composer install --no-dev` in the extension directory first. Full details in
-[INSTALL.md](INSTALL.md).
+Details, upgrade notes and the Git-checkout procedure are in [INSTALL.md](INSTALL.md).
 
 ## Configuration
 
 | Setting | Description |
 |---|---|
-| Organisation contact | CiviCRM contact used as sender (name, address) |
-| IBAN | Swiss IBAN used for the QR-bill |
-| Logo path | Absolute server path to the logo image |
-| Logo offset X | Horizontal logo offset, in mm |
-| Signature path | Absolute server path to the signature image |
-| Signature offset Y | Vertical signature offset, in mm (positive moves it down) |
-| Invoice number format | e.g. `{YEAR}-{SEQ:4}` → `2026-0042` |
-| QR reference template | e.g. `Facture N° {NUMBER}` |
-| VAT note | Shown in italics below the totals |
-| Financial account | Account used for contributions created by "mark as paid" |
+| Sender organisation | CiviCRM contact used as creditor; needs a name, postcode and city |
+| IBAN | Regular IBAN (creditor reference) or QR-IBAN (QR reference) — detected automatically |
+| Logo / signature | Absolute server paths, with position offsets in mm |
+| Numbering format | e.g. `{YEAR}-{SEQ:4}` → `2026-0042` |
+| QR reference template | Text shown to the payer as additional information, e.g. `Facture N° {NUMBER}` |
+| Single page PDF | Payment part at the bottom of page 1 when it fits |
+| Financial account | Account used by the *Facture QR* financial type |
+| Replace CiviCRM invoice | In the native *Email invoice* action, attach the QR invoice instead of CiviCRM's own |
 
-## Email template
+## Email tokens
 
-The template is stored in **Administer → Communications → Message Templates**,
-under the title `swissqrinvoice_send` in the *User-Driven Messages* tab. Edit it
-there to change the wording or the HTML layout.
+Per-invoice emails use the message template `swissqrinvoice_send` (*Administer → Communications → Message Templates*, *User-Driven Messages* tab):
 
 | Token | Value |
 |---|---|
-| `{contact_name}` | Recipient display name |
-| `{invoice_number}` | Invoice number |
-| `{invoice_date}` | Invoice date (dd.mm.yyyy) |
-| `{amount_due}` | Amount due, in CHF |
-| `{organization_name}` | Signatory name, from the settings |
-| `{contact.first_name}` | Recipient first name |
-| `{contact.display_name}` | Recipient full name |
-| `{contact.email_greeting_display}` | Greeting line, e.g. "Dear John" |
+| `{contact.email_greeting_display}` | Greeting line, e.g. "Cher Frédéric" |
+| `{contact.first_name}`, `{contact.display_name}` | Recipient names |
+| `{invoice_number}`, `{invoice_date}`, `{amount_due}` | Invoice data |
+| `{organization_name}` | Signatory name from the settings |
 
-Greeting tokens depend on the contact having a greeting configured in CiviCRM;
-when it is empty, the display name is used instead.
+For donation appeals in CiviMail:
+
+| Token | Value |
+|---|---|
+| `{swissqr.donation_slip_url}` | Personal link to the donor's QR donation slip (PDF) |
+| `{swissqr.donation_reference}` | The reference printed on that slip |
 
 ## Known limitations
 
-- The QR slip always occupies its own page; a single-page layout is not available
-- Batch generation for a group of contacts is not implemented yet
-- The interface is French only (see *Language* above)
+- Bank reconciliation requires CiviBanking and a per-bank importer configuration — see [docs/CIVIBANKING.md](docs/CIVIBANKING.md)
+- Issued invoices cannot be edited: cancel and duplicate instead, so that the books stay consistent
+- Bulk invoicing creates one line per invoice
 
 ## License
 

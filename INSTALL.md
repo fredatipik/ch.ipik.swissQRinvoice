@@ -1,102 +1,117 @@
 # Installation — ch.ipik.swissQRinvoice
 
-## 1. Install the extension files
+## 1. Install the files
 
-Place the `ch.ipik.swissQRinvoice` folder in your CiviCRM extensions directory:
-
-```
-/path/to/civicrm/ext/ch.ipik.swissQRinvoice/
-```
-
+Place the `ch.ipik.swissQRinvoice` folder in your CiviCRM extensions directory.
 On WordPress this is usually `wp-content/uploads/civicrm/ext/`.
 
 ## 2. Dependencies
 
-The QR-bill generation relies on the `sprain/swiss-qr-bill` PHP library.
+**From a release archive**: `vendor/` is included, nothing to do.
 
-**If you installed from a release archive**, the `vendor/` directory is already
-included and there is nothing to do — skip to step 3.
-
-**If you cloned the Git repository**, install the dependencies yourself:
+**From a Git checkout**:
 
 ```bash
-cd /path/to/civicrm/ext/ch.ipik.swissQRinvoice
+cd /path/to/ext/ch.ipik.swissQRinvoice
 composer install --no-dev
 ```
 
-The extension also attempts to run `composer install` automatically when it is
-enabled, provided `composer` is available in the server's `$PATH`. This is a
-convenience, not a guarantee: on restricted shared hosting it may silently do
-nothing, in which case the PDF will render without its QR slip and an error is
-written to the CiviCRM log.
+The extension also tries to run Composer when it is enabled, if `composer` is
+in the server's `$PATH`. Without `vendor/`, invoices render without their QR
+payment part and an error is written to the CiviCRM log.
 
-## 3. Enable the extension
+## 3. Enable
 
-**Administer → System Settings → Extensions** → find "Swiss QR Invoice" → Install.
+**Administer → System Settings → Extensions** → "Swiss QR Invoice" → Install.
 
 ## 4. Configure
 
-Go to **Facturation → Paramètres** in the CiviCRM menu and set:
+**Invoicing → Settings**:
 
-- the organisation contact used as the sender (name, address, postcode, city);
-- the IBAN, in Swiss format (e.g. `CH88 0076 7000 S560 6787 8`);
-- the absolute server paths to your logo and signature images;
-- the invoice numbering format (e.g. `{YEAR}-{SEQ:4}`);
-- the financial account used when an invoice is marked as paid.
+- the **sender organisation**: a CiviCRM contact with a full primary address.
+  Since v2.3 of the QR-bill specification (21 November 2025) addresses must be
+  structured; street and building number are taken from CiviCRM's parsed
+  address fields when available, otherwise split automatically
+  ("Rue du Lac 12", "12, rue du Lac");
+- the **IBAN** — a QR-IBAN (institution identifier 30000–31999) switches to QR
+  references automatically;
+- logo and signature: **absolute** server paths, e.g.
+  `/home/clients/xxxx/sites/example.org/wp-content/uploads/logo.png`
+  (a wrong path is ignored silently);
+- numbering format, VAT note, financial account.
 
-The administration interface is currently in French — see the note on
-translations in the README.
+## 5. Sending invoices
 
-## 5. Logo and signature
+**One at a time** — from the invoice list, envelope icon. Uses the message
+template `swissqrinvoice_send`, created on install.
 
-Upload the image files to the server (SFTP, or your host's file manager), then
-enter their **absolute** path in the settings, for example:
+**Many at once**:
 
+1. In any contact search, select the contacts, then *Actions → Create QR invoices*.
+   One issued invoice (with a pending contribution) is created per contact,
+   through a queue with a progress bar.
+2. *Contributions → Find contributions*: financial type *Facture QR*, status
+   *Pending*. Select them, then *Actions → Email invoice*. CiviCRM's own invoice
+   is replaced by the QR invoice (setting *Replace CiviCRM invoice*).
+   With Invoice Helper installed, this step is queued as well.
+
+CiviCRM's *Email invoice* action requires invoicing to be enabled under
+*Administer → CiviContribute → CiviContribute Component Settings*.
+
+## 6. Donation appeals
+
+In a CiviMail mailing, insert `{swissqr.donation_slip_url}` as a link, e.g.
+"Download your donation slip". Each recipient gets a personal, non-expiring link
+to a one-page QR slip with no amount and no address. The reference on the slip
+encodes the donor and the mailing; see [docs/CIVIBANKING.md](docs/CIVIBANKING.md)
+to credit donations automatically.
+
+## 7. Upgrading from v0.29
+
+Disable then re-enable the extension: new routes, the payment index and the new
+setting are installed. Existing data is kept.
+
+Invoices sent before v0.30 have no pending contribution. To create them — so
+that bank imports can match those invoices — run a dry run first, then apply:
+
+```bash
+cv ev 'print_r(CRM_SwissQRInvoice_Contribution::backfill());'
+cv ev 'print_r(CRM_SwissQRInvoice_Contribution::backfill(FALSE));'
 ```
-/home/clients/xxxx/sites/example.org/wp-content/uploads/logo.png
-```
 
-A relative or truncated path will be silently ignored and the image will simply
-not appear on the PDF. Both images have an offset setting (horizontal for the
-logo, vertical for the signature) to fine-tune their placement in millimetres.
-
-## 6. Email template
-
-An HTML message template named `swissqrinvoice_send` is created automatically on
-install. Edit it under **Administer → Communications → Message Templates**, in
-the *User-Driven Messages* tab. The available tokens are listed in the README.
+Their QR slips still carry no structured reference: only invoices issued from
+v0.30 onwards can be matched automatically.
 
 ## Technical notes
 
-- **TCPDF** ships with CiviCRM; no separate installation is required.
-- **sprain/swiss-qr-bill** produces QR data compliant with the Swiss Payment
-  Standard (ISO 20022).
-- The QR payment slip is rendered on **page 2** of the PDF, as a full-width
-  payment part with the standard cutting lines.
-- Access is controlled by two CiviCRM permissions: `access swissqr invoices`
-  and `edit swissqr invoices`.
+- The payment part always occupies the bottom 105 mm of a page (from 193 mm).
+- Payments are recorded with CiviCRM's Payment API; invoice status follows the
+  contribution through `hook_civicrm_post`, with a catch-up query each time the
+  invoice list is opened.
+- Permissions: `access swissqr invoices`, `edit swissqr invoices`.
 
 ## Database tables
 
 | Table | Contents |
 |---|---|
-| `civicrm_swissqr_invoice` | one row per invoice |
-| `civicrm_swissqr_invoice_line` | invoice line items (n rows per invoice) |
-| `civicrm_swissqr_service` | reusable service catalog |
+| `civicrm_swissqr_invoice` | one row per invoice, linked to its contribution by `payment_contribution_id` |
+| `civicrm_swissqr_invoice_line` | line items |
+| `civicrm_swissqr_service` | service catalogue |
 
-These tables are created on install and are **not** dropped when the extension
-is merely disabled.
+Tables are kept when the extension is disabled, and dropped on uninstall.
 
 ## Translations
 
-All `ts()` calls are scoped to the `ch.ipik.swissQRinvoice` domain, so the
-extension is ready for translation files. To add a language, create:
+CiviCRM loads compiled catalogues from:
 
 ```
-l10n/de_DE/LC_MESSAGES/ch.ipik.swissQRinvoice.po
+l10n/<locale>/LC_MESSAGES/swissQRinvoice.mo
 ```
 
-## Planned
+The file is named after the extension's main file (`swissQRinvoice`), not its
+key. To add a language, copy `l10n/swissQRinvoice.pot` to
+`l10n/de_DE/LC_MESSAGES/swissQRinvoice.po`, translate it, then compile:
 
-Batch invoice generation for a group of contacts: the data model already
-supports it, the user interface does not exist yet.
+```bash
+msgfmt -o l10n/de_DE/LC_MESSAGES/swissQRinvoice.mo l10n/de_DE/LC_MESSAGES/swissQRinvoice.po
+```

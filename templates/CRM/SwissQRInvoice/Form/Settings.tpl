@@ -18,6 +18,9 @@
   <div class="crm-section"><div class="label">{$form.swissqr_signatory_name.label}</div><div class="content">{$form.swissqr_signatory_name.html}</div></div>
   <div class="crm-section"><div class="label">{$form.swissqr_vat_note.label}</div><div class="content">{$form.swissqr_vat_note.html}</div></div>
 
+  <h4>{ts}PDF — Layout{/ts}</h4>
+  <div class="crm-section"><div class="label">{$form.swissqr_single_page_pdf.label}</div><div class="content">{$form.swissqr_single_page_pdf.html}<br><span class="description">{ts}The payment part is printed at the bottom of the first page when the invoice leaves enough room; longer invoices automatically keep it on a second page.{/ts}</span></div></div>
+
   <h4>{ts}Numbering{/ts}</h4>
   <div class="crm-section"><div class="label">{$form.swissqr_invoice_number_format.label}</div><div class="content">{$form.swissqr_invoice_number_format.html}<br><span class="description">{ts}Variables: {ldelim}YEAR{rdelim} = year, {ldelim}SEQ:4{rdelim} = sequence of 4 digits{/ts}</span></div></div>
   <div class="crm-section"><div class="label">{$form.swissqr_qr_reference_template.label}</div><div class="content">{$form.swissqr_qr_reference_template.html}<br><span class="description">{ts}Variable: {ldelim}NUMBER{rdelim} = invoice number{/ts}</span></div></div>
@@ -33,6 +36,7 @@
 
   <h4>{ts}Accounting{/ts}</h4>
   <div class="crm-section"><div class="label">{$form.swissqr_financial_account_id.label}</div><div class="content">{$form.swissqr_financial_account_id.html}<br><span class="description">{ts}Financial account used for QR invoice payments{/ts}</span></div></div>
+  <div class="crm-section"><div class="label">{$form.swissqr_replace_native_invoice.label}</div><div class="content">{$form.swissqr_replace_native_invoice.html}<br><span class="description">{ts}When a QR invoice's contribution is sent with CiviCRM's "Email invoice" action, attach the QR invoice instead of CiviCRM's own invoice. Unticked, both are attached.{/ts}</span></div></div>
 
   <h4>{ts}Access{/ts}</h4>
   {if $form.swissqr_allowed_roles}

@@ -21,9 +21,10 @@
     <div class="label">{$form.paid_date.label}</div>
     <div class="content"><input type="date" name="paid_date" value="{$form.paid_date.value|default:''}" class="crm-form-text"></div>
   </div>
-  <p class="description">{ts}A CiviCRM contribution will be created automatically.{/ts}</p>
+  <p class="description">{ts}The payment is recorded on the invoice's contribution. An amount lower than the balance leaves the invoice partially paid.{/ts}</p>
   <div class="crm-submit-buttons">
     {include file="CRM/common/formButtons.tpl" location="bottom"}
+    &nbsp;<a href="{$cancelURL}" class="button"><span>{ts}Cancel{/ts}</span></a>
   </div>
 </div>
 {/crmScope}

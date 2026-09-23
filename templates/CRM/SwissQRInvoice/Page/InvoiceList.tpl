@@ -2,6 +2,7 @@
 <style>
 .swissqr-badge { display:inline-block; padding:3px 10px; border-radius:12px; font-size:11px; font-weight:600; white-space:nowrap; }
 .swissqr-draft     { background:#fff3cd; color:#7a5c00; border:1px solid #f0c430; }
+.swissqr-issued    { background:#e8eaf6; color:#283593; border:1px solid #9fa8da; }
 .swissqr-sent      { background:#1565c0; color:#fff;    border:1px solid #0d47a1; }
 .swissqr-paid      { background:#2e7d32; color:#fff;    border:1px solid #1b5e20; }
 .swissqr-cancelled { background:#eeeeee; color:#555;    border:1px solid #ccc; }
@@ -41,7 +42,7 @@
         <label>Statut</label>
         <select name="status" style="height:30px">
           <option value="">Tous</option>
-          <option value="draft"     {if $filters.status == 'draft'}selected{/if}>Brouillon</option>
+          <option value="draft"     {if $filters.status == 'draft'}selected{/if}>{ts}Draft{/ts}</option>
           <option value="sent"      {if $filters.status == 'sent'}selected{/if}>{ts}Sent{/ts}</option>
           <option value="paid"      {if $filters.status == 'paid'}selected{/if}>{ts}Paid{/ts}</option>
           <option value="cancelled" {if $filters.status == 'cancelled'}selected{/if}>{ts}Cancelled{/ts}</option>
@@ -94,14 +95,18 @@
     <tr {if $inv.status == 'cancelled'}style="opacity:.55"{/if}>
       <td>{$inv.invoice_number|escape}</td>
       <td><a href="{crmURL p='civicrm/contact/view' q="reset=1&cid=`$inv.contact_id`"}">{$inv.contact_name|escape}</a></td>
-      <td>{$inv.invoice_date|crmDate}</td>
-      <td>{if $inv.due_date}{$inv.due_date|crmDate}{/if}</td>
+      <td data-order="{$inv.invoice_date}">{$inv.invoice_date|crmDate}</td>
+      <td data-order="{$inv.due_date}">{if $inv.due_date}{$inv.due_date|crmDate}{/if}</td>
       <td style="text-align:right">CHF {$inv.total|string_format:"%.2f"}</td>
       <td style="text-align:right">CHF {$inv.amount_due|string_format:"%.2f"}</td>
       <td>{$inv.creator_name|escape}</td>
       <td>
         {if $inv.status == 'draft'}
-          <span class="swissqr-badge swissqr-draft">Brouillon</span>
+          {if $inv.payment_contribution_id}
+            <span class="swissqr-badge swissqr-issued">{ts}Issued{/ts}</span>
+          {else}
+            <span class="swissqr-badge swissqr-draft">{ts}Draft{/ts}</span>
+          {/if}
         {elseif $inv.status == 'sent'}
           <span class="swissqr-badge swissqr-sent">{ts}Sent{/ts}</span>
         {elseif $inv.status == 'paid'}
@@ -114,7 +119,7 @@
         <a href="{crmURL p='civicrm/swissqr/invoice/pdf' q="id=`$inv.id`"}" title="{ts}Download PDF{/ts}" target="_blank"><i class="crm-i fa-download"></i></a>
         {if $inv.status != 'cancelled'}
         &nbsp;
-        {if $canEdit && $inv.status == 'draft'}
+        {if $canEdit && $inv.status == 'draft' && !$inv.payment_contribution_id}
         <a href="{crmURL p='civicrm/swissqr/invoice/edit' q="id=`$inv.id`&reset=1"}" title="Modifier"><i class="crm-i fa-pencil"></i></a>
         &nbsp;
         {/if}
@@ -162,7 +167,7 @@
       paging:    false,
       info:      false,
       searching: false,
-      order:     [[2, 'desc']], // tri par date desc par défaut
+      order:     [[2, 'desc']], // date desc (les cellules portent data-order au format ISO)
       columnDefs: [
         { orderable: false, targets: 8 }, // colonne Actions
         { type: 'num', targets: [4, 5] }  // montants numériques

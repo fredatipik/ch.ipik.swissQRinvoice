@@ -7,6 +7,8 @@ class CRM_SwissQRInvoice_Page_InvoiceList extends CRM_Core_Page {
       'date_from'  => CRM_Utils_Request::retrieve('date_from', 'String')  ?: '',
       'date_to'    => CRM_Utils_Request::retrieve('date_to',   'String')  ?: '',
     ];
+    // Catch up on payments recorded outside this extension (bank import, contribution screen).
+    CRM_SwissQRInvoice_Contribution::syncAll();
     $page   = max(1, (int)(CRM_Utils_Request::retrieve('p', 'Integer') ?: 1));
     $result = CRM_SwissQRInvoice_BAO_Invoice::getList($filters, $page);
 

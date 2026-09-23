@@ -27,6 +27,7 @@
   </div>
   <div class="crm-submit-buttons">
     {include file="CRM/common/formButtons.tpl" location="bottom"}
+    &nbsp;<a href="{$cancelURL}" class="button"><span>{ts}Cancel{/ts}</span></a>
   </div>
 </div>
 {/crmScope}

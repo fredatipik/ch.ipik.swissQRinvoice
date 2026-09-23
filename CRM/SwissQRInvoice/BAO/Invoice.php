@@ -11,6 +11,15 @@ class CRM_SwissQRInvoice_BAO_Invoice {
       if (empty($params['invoice_number'])) {
         $params['invoice_number'] = CRM_SwissQRInvoice_Utils::nextInvoiceNumber();
       }
+      // Never let two invoices share a number, whatever the form sent.
+      $taken = (int) CRM_Core_DAO::singleValueQuery(
+        'SELECT COUNT(*) FROM civicrm_swissqr_invoice WHERE invoice_number = %1',
+        [1 => [$params['invoice_number'], 'String']]
+      );
+      if ($taken) {
+        $params['invoice_number'] = CRM_SwissQRInvoice_Utils::nextInvoiceNumber();
+        $params['reference'] = '';
+      }
       if (empty($params['reference'])) {
         $tpl = Civi::settings()->get('swissqr_qr_reference_template') ?: 'Facture N° {NUMBER}';
         $params['reference'] = str_replace('{NUMBER}', $params['invoice_number'], $tpl);
@@ -140,16 +149,39 @@ class CRM_SwissQRInvoice_BAO_Invoice {
     );
   }
 
+  /**
+   * Record a payment. Goes through the invoice's contribution, so the result is
+   * identical to a payment imported from the bank: CiviCRM sets the status.
+   */
   public static function markAsPaid(int $invoiceId, float $amount, string $paidDate): array {
     $invoice = self::getById($invoiceId);
-    if (!$invoice) throw new CRM_Core_Exception("Facture #{$invoiceId} introuvable.");
-    $contrib = civicrm_api3('Contribution','create',[
-      'contact_id'=>$invoice['contact_id'],'financial_type_id'=>self::getInvoiceFinancialTypeId(),
-      'total_amount'=>$amount,'receive_date'=>$paidDate,'payment_instrument_id'=>'EFT',
-      'contribution_status_id'=>'Completed','source'=>"Facture QR #{$invoice['invoice_number']}",
-    ]);
-    self::save(['id'=>$invoiceId,'status'=>'paid','paid_date'=>$paidDate,'amount_paid'=>$amount,'payment_contribution_id'=>$contrib['id']]);
+    if (!$invoice) {
+      throw new CRM_Core_Exception(ts('Invoice not found.', ['domain' => CRM_SwissQRInvoice_Utils::DOMAIN]));
+    }
+    CRM_SwissQRInvoice_Contribution::recordPayment($invoice, $amount, $paidDate);
     return self::getById($invoiceId);
+  }
+
+  /**
+   * Create one invoice for a contact and issue it (pending contribution).
+   * Used by the bulk "Create QR invoices" action.
+   *
+   * @param array $spec  invoice_date, due_date, notes, lines[]
+   */
+  public static function createIssued(int $contactId, array $spec): array {
+    $invoice = self::save([
+      'contact_id'              => $contactId,
+      'organization_contact_id' => (int) Civi::settings()->get('swissqr_org_contact_id'),
+      'invoice_date'            => $spec['invoice_date'],
+      'due_date'                => $spec['due_date'] ?: NULL,
+      'notes'                   => $spec['notes'] ?? NULL,
+      'discount_type'           => 'none',
+      'discount_value'          => 0,
+      'amount_paid'             => 0,
+      'lines'                   => $spec['lines'],
+    ]);
+    CRM_SwissQRInvoice_Contribution::ensurePending($invoice);
+    return self::getById((int) $invoice['id']);
   }
 
   public static function getInvoiceFinancialTypeId(): int {
@@ -183,14 +215,38 @@ class CRM_SwissQRInvoice_BAO_Invoice {
   }
 
   public static function cancel(int $invoiceId): void {
+    $invoice = self::getById($invoiceId);
+    if ($invoice) {
+      CRM_SwissQRInvoice_Contribution::cancel($invoice);
+    }
     CRM_Core_DAO::executeQuery(
       "UPDATE civicrm_swissqr_invoice SET status='cancelled', updated_at=%1 WHERE id=%2",
       [1 => [date('Y-m-d H:i:s'), 'String'], 2 => [$invoiceId, 'Integer']]
     );
   }
 
+  /**
+   * Mark an invoice as sent and issue it. Sending again a paid invoice keeps it paid.
+   */
   public static function recordSent(int $invoiceId, string $email): void {
-    self::save(['id'=>$invoiceId,'status'=>'sent','sent_date'=>date('Y-m-d H:i:s'),'sent_to_email'=>$email]);
+    $invoice = self::getById($invoiceId);
+    if (!$invoice) {
+      return;
+    }
+    CRM_SwissQRInvoice_Contribution::ensurePending($invoice);
+    $params = ['id' => $invoiceId, 'sent_date' => date('Y-m-d H:i:s'), 'sent_to_email' => $email];
+    if ($invoice['status'] === 'draft') {
+      $params['status'] = 'sent';
+    }
+    self::save($params);
+  }
+
+  /**
+   * An issued invoice has a contribution: its amounts are in the books and it
+   * can no longer be edited, only cancelled and replaced.
+   */
+  public static function isEditable(array $invoice): bool {
+    return ($invoice['status'] ?? '') === 'draft' && empty($invoice['payment_contribution_id']);
   }
 
   // ── Services (prestations) ────────────────────────────────────────────────

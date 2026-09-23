@@ -13,8 +13,8 @@
     <url desc="Documentation">https://github.com/fredatipik/ch.ipik.swissQRinvoice/blob/main/README.md</url>
     <url desc="Bugs">https://github.com/fredatipik/ch.ipik.swissQRinvoice/issues</url>
   </urls>
-  <releaseDate>2026-09-16</releaseDate>
-  <version>0.29</version>
+  <releaseDate>2026-09-23</releaseDate>
+  <version>0.36</version>
   <develStage>alpha</develStage>
   <compatibility>
     <ver>6.0</ver>

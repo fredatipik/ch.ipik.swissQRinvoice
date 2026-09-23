@@ -1,126 +1,49 @@
 <?php
 /**
  * ch.ipik.swissQRinvoice — Swiss QR Invoice extension for CiviCRM
- * Version 0.29
+ * Version 0.36
  */
 
 function swissQRinvoice_civicrm_config(&$config) {
   set_include_path(__DIR__ . PATH_SEPARATOR . get_include_path());
-  $template = CRM_Core_Smarty::singleton();
-  $template->addTemplateDir(__DIR__ . '/templates');
-  require_once __DIR__ . '/CRM/SwissQRInvoice/Utils.php';
-  require_once __DIR__ . '/CRM/SwissQRInvoice/BAO/Invoice.php';
-  require_once __DIR__ . '/CRM/SwissQRInvoice/PDF/Generator.php';
-  require_once __DIR__ . '/CRM/SwissQRInvoice/Form/Settings.php';
-  require_once __DIR__ . '/CRM/SwissQRInvoice/Form/Invoice.php';
-  require_once __DIR__ . '/CRM/SwissQRInvoice/Form/Send.php';
-  require_once __DIR__ . '/CRM/SwissQRInvoice/Form/MarkPaid.php';
-  require_once __DIR__ . '/CRM/SwissQRInvoice/Page/InvoiceList.php';
-  require_once __DIR__ . '/CRM/SwissQRInvoice/Page/PDF.php';
-  require_once __DIR__ . '/CRM/SwissQRInvoice/Page/Services.php';
-  require_once __DIR__ . '/CRM/SwissQRInvoice/Page/Duplicate.php';
-  require_once __DIR__ . '/CRM/SwissQRInvoice/Page/Cancel.php';
-  require_once __DIR__ . '/CRM/SwissQRInvoice/Page/CancelDuplicate.php';
-}
-
-/**
- * Lance composer install --no-dev si le vendor est absent ou incomplet.
- * Fonctionne depuis l'interface CiviCRM (install/enable).
- */
-function _swissQRinvoice_composer_install(): void {
-  $vendorAutoload = __DIR__ . '/vendor/autoload.php';
-  $composerJson   = __DIR__ . '/composer.json';
-
-  // Vendor déjà présent et complet
-  if (file_exists($vendorAutoload) && file_exists(__DIR__ . '/vendor/sprain')) {
-    return;
+  CRM_Core_Smarty::singleton()->addTemplateDir(__DIR__ . '/templates');
+  foreach ([
+    'Utils', 'Reference', 'Contribution', 'Mail', 'Sender', 'Tokens',
+    'BAO/Invoice', 'PDF/Generator',
+    'Form/Settings', 'Form/Invoice', 'Form/Send', 'Form/MarkPaid', 'Form/Bulk',
+    'Page/InvoiceList', 'Page/PDF', 'Page/Services', 'Page/Duplicate',
+    'Page/Cancel', 'Page/CancelDuplicate', 'Page/Slip',
+  ] as $class) {
+    require_once __DIR__ . '/CRM/SwissQRInvoice/' . $class . '.php';
   }
 
-  if (!file_exists($composerJson)) {
-    CRM_Core_Error::debug_log_message('SwissQRInvoice: composer.json not found, vendor not installed.');
-    return;
-  }
-
-  // Trouver composer
-  $composerBin = null;
-  foreach (['/usr/bin/composer', '/usr/local/bin/composer', '/home/' . get_current_user() . '/bin/composer'] as $p) {
-    if (file_exists($p)) { $composerBin = $p; break; }
-  }
-  if (!$composerBin) {
-    $composerBin = trim(shell_exec('which composer 2>/dev/null') ?: '');
-  }
-  if (!$composerBin || !file_exists($composerBin)) {
-    CRM_Core_Error::debug_log_message('SwissQRInvoice: composer not found, vendor not installed.');
-    return;
-  }
-
-  $cmd    = escapeshellarg($composerBin) . ' install --no-dev --no-interaction --quiet 2>&1';
-  $output = [];
-  $code   = 0;
-  exec("cd " . escapeshellarg(__DIR__) . " && {$cmd}", $output, $code);
-
-  if ($code !== 0) {
-    CRM_Core_Error::debug_log_message('SwissQRInvoice composer error: ' . implode("\n", $output));
-  } else {
-    CRM_Core_Error::debug_log_message('SwissQRInvoice: composer install OK.');
+  // Register token listeners once per request.
+  if (!isset(Civi::$statics[__FUNCTION__])) {
+    Civi::$statics[__FUNCTION__] = TRUE;
+    Civi::dispatcher()->addListener('civi.token.list', ['CRM_SwissQRInvoice_Tokens', 'register']);
+    Civi::dispatcher()->addListener('civi.token.eval', ['CRM_SwissQRInvoice_Tokens', 'evaluate']);
   }
 }
 
-/**
- * Installation : tables SQL + routes + menu + type financier.
- * Tout est idempotent (safe à relancer).
- */
+// ── Lifecycle ────────────────────────────────────────────────────────────────
+
 function swissQRinvoice_civicrm_install() {
-  // 0. Dépendances composer
   _swissQRinvoice_composer_install();
-
-  // 1. Tables SQL
-  $sqlDir = __DIR__ . '/sql';
-  if (file_exists("{$sqlDir}/install.sql")) {
-    CRM_Utils_File::sourceSQLFile(CIVICRM_DSN, "{$sqlDir}/install.sql");
+  if (file_exists(__DIR__ . '/sql/install.sql')) {
+    CRM_Utils_File::sourceSQLFile(CIVICRM_DSN, __DIR__ . '/sql/install.sql');
   }
-
-  // 2. Routes civicrm_menu
+  _swissQRinvoice_schema_upgrade();
   _swissQRinvoice_install_routes();
-
-  // 3. Menu de navigation
   _swissQRinvoice_install_navigation();
-
-  // 4. Type financier
   _swissQRinvoice_install_financial_type();
-
-  // 5. Template email CiviCRM
   _swissQRinvoice_install_msg_template();
-}
-
-function swissQRinvoice_civicrm_uninstall() {
-  // Tables
-  $sqlDir = __DIR__ . '/sql';
-  if (file_exists("{$sqlDir}/uninstall.sql")) {
-    CRM_Utils_File::sourceSQLFile(CIVICRM_DSN, "{$sqlDir}/uninstall.sql");
-  }
-  // Routes
-  CRM_Core_DAO::executeQuery("DELETE FROM civicrm_menu WHERE path LIKE 'civicrm/swissqr%' OR path = 'civicrm/admin/swissqr/settings'");
-  // Menu
-  CRM_Core_DAO::executeQuery("DELETE FROM civicrm_navigation WHERE name LIKE 'swissqr_%'");
-  // Vider cache
-  CRM_Core_Config::clearDBCache();
 }
 
 function swissQRinvoice_civicrm_enable() {
-  // Dépendances composer si vendor absent
   _swissQRinvoice_composer_install();
-
-  // Template email si absent
+  _swissQRinvoice_schema_upgrade();
   _swissQRinvoice_install_msg_template();
-
-  // Réinstaller routes et menu si absents (ex: après désactivation)
-  $count = (int) CRM_Core_DAO::singleValueQuery(
-    "SELECT COUNT(*) FROM civicrm_menu WHERE path = 'civicrm/swissqr/invoice/list'"
-  );
-  if (!$count) {
-    _swissQRinvoice_install_routes();
-  }
+  _swissQRinvoice_install_routes();
   $navCount = (int) CRM_Core_DAO::singleValueQuery(
     "SELECT COUNT(*) FROM civicrm_navigation WHERE name = 'swissqr_facturation'"
   );
@@ -135,93 +58,155 @@ function swissQRinvoice_civicrm_disable() {
   CRM_Core_Config::clearDBCache();
 }
 
+function swissQRinvoice_civicrm_uninstall() {
+  if (file_exists(__DIR__ . '/sql/uninstall.sql')) {
+    CRM_Utils_File::sourceSQLFile(CIVICRM_DSN, __DIR__ . '/sql/uninstall.sql');
+  }
+  CRM_Core_DAO::executeQuery("DELETE FROM civicrm_menu WHERE path LIKE 'civicrm/swissqr%' OR path = 'civicrm/admin/swissqr/settings'");
+  CRM_Core_DAO::executeQuery("DELETE FROM civicrm_navigation WHERE name LIKE 'swissqr_%'");
+  CRM_Core_Config::clearDBCache();
+}
+
 /**
- * Installe les routes dans civicrm_menu.
+ * Run composer if the vendor directory is missing (Git checkouts).
+ * Release archives already contain vendor/, so this normally does nothing.
  */
-function _swissQRinvoice_install_routes(): void {
-  $aclCheck  = serialize(['CRM_Core_Permission', 'checkMenu']);
-  $argUser   = serialize([['access CiviCRM'], 'and']);
-  $argEdit   = serialize([['edit swissqr invoices'], 'and']);
-  $argAdmin  = serialize([['administer CiviCRM'], 'and']);
+function _swissQRinvoice_composer_install(): void {
+  if (file_exists(__DIR__ . '/vendor/autoload.php') && file_exists(__DIR__ . '/vendor/sprain')) {
+    return;
+  }
+  if (!file_exists(__DIR__ . '/composer.json')) {
+    CRM_Core_Error::debug_log_message('SwissQRInvoice: composer.json not found, vendor not installed.');
+    return;
+  }
+  $composerBin = NULL;
+  foreach (['/usr/bin/composer', '/usr/local/bin/composer', '/home/' . get_current_user() . '/bin/composer'] as $p) {
+    if (file_exists($p)) {
+      $composerBin = $p;
+      break;
+    }
+  }
+  if (!$composerBin && function_exists('shell_exec')) {
+    $composerBin = trim((string) shell_exec('which composer 2>/dev/null'));
+  }
+  if (!$composerBin || !file_exists($composerBin) || !function_exists('exec')) {
+    CRM_Core_Error::debug_log_message('SwissQRInvoice: composer not found, vendor not installed.');
+    return;
+  }
+  $output = [];
+  $code   = 0;
+  exec('cd ' . escapeshellarg(__DIR__) . ' && ' . escapeshellarg($composerBin) . ' install --no-dev --no-interaction --quiet 2>&1', $output, $code);
+  CRM_Core_Error::debug_log_message($code
+    ? 'SwissQRInvoice composer error: ' . implode("\n", $output)
+    : 'SwissQRInvoice: composer install OK.');
+}
 
-  $routes = [
-    ['civicrm/swissqr/invoice/list',     'Toutes les factures',  'CRM_SwissQRInvoice_Page_InvoiceList', $argUser],
-    ['civicrm/swissqr/invoice/new',      'Nouvelle facture',     'CRM_SwissQRInvoice_Form_Invoice',     $argUser],
-    ['civicrm/swissqr/invoice/edit',     'Modifier la facture',  'CRM_SwissQRInvoice_Form_Invoice',     $argUser],
-    ['civicrm/swissqr/invoice/pdf',      ts('Download PDF'),      'CRM_SwissQRInvoice_Page_PDF',         $argUser],
-    ['civicrm/swissqr/invoice/send',     'Envoyer la facture',   'CRM_SwissQRInvoice_Form_Send',        $argEdit],
-    ['civicrm/swissqr/invoice/markpaid', ts('Mark as paid'),  'CRM_SwissQRInvoice_Form_MarkPaid',    $argEdit],
-    ['civicrm/admin/swissqr/settings',   ts('SwissQR Settings'),   'CRM_SwissQRInvoice_Form_Settings',    $argAdmin],
-    ['civicrm/swissqr/services',         'Prestations',          'CRM_SwissQRInvoice_Page_Services',    $argUser],
-    ['civicrm/swissqr/invoice/duplicate', 'Dupliquer',            'CRM_SwissQRInvoice_Page_Duplicate',   $argEdit],
-    ['civicrm/swissqr/invoice/cancel',    'Annuler la facture',   'CRM_SwissQRInvoice_Page_Cancel',          $argEdit],
-    ['civicrm/swissqr/invoice/cancel-duplicate', 'Annuler duplicata', 'CRM_SwissQRInvoice_Page_CancelDuplicate', $argEdit],
+/**
+ * Idempotent schema adjustments for existing installs.
+ */
+function _swissQRinvoice_schema_upgrade(): void {
+  $hasIndex = CRM_Core_DAO::singleValueQuery(
+    "SELECT COUNT(*) FROM information_schema.statistics
+      WHERE table_schema = DATABASE() AND table_name = 'civicrm_swissqr_invoice'
+        AND index_name = 'idx_payment_contribution_id'"
+  );
+  if (!$hasIndex) {
+    CRM_Core_DAO::executeQuery('ALTER TABLE civicrm_swissqr_invoice ADD INDEX idx_payment_contribution_id (payment_contribution_id)');
+  }
+}
+
+// ── Routes ───────────────────────────────────────────────────────────────────
+
+/**
+ * Route table shared by alterMenu and the civicrm_menu inserts.
+ * [path, title, page_callback, permission, is_public]
+ */
+function _swissQRinvoice_routes(): array {
+  $d = ['domain' => 'ch.ipik.swissQRinvoice'];
+  return [
+    ['civicrm/swissqr/invoice/list',             ts('All invoices', $d),        'CRM_SwissQRInvoice_Page_InvoiceList',     'access CiviCRM', FALSE],
+    ['civicrm/swissqr/invoice/new',              ts('New invoice', $d),         'CRM_SwissQRInvoice_Form_Invoice',         'access CiviCRM', FALSE],
+    ['civicrm/swissqr/invoice/edit',             ts('Edit invoice', $d),        'CRM_SwissQRInvoice_Form_Invoice',         'access CiviCRM', FALSE],
+    ['civicrm/swissqr/invoice/pdf',              ts('Download PDF', $d),        'CRM_SwissQRInvoice_Page_PDF',             'access CiviCRM', FALSE],
+    ['civicrm/swissqr/invoice/send',             ts('Send invoice', $d),        'CRM_SwissQRInvoice_Form_Send',            'edit swissqr invoices', FALSE],
+    ['civicrm/swissqr/invoice/markpaid',         ts('Mark as paid', $d),        'CRM_SwissQRInvoice_Form_MarkPaid',        'edit swissqr invoices', FALSE],
+    ['civicrm/swissqr/invoice/duplicate',        ts('Duplicate invoice', $d),   'CRM_SwissQRInvoice_Page_Duplicate',       'edit swissqr invoices', FALSE],
+    ['civicrm/swissqr/invoice/cancel',           ts('Cancel invoice', $d),      'CRM_SwissQRInvoice_Page_Cancel',          'edit swissqr invoices', FALSE],
+    ['civicrm/swissqr/invoice/cancel-duplicate', ts('Discard duplicate', $d),   'CRM_SwissQRInvoice_Page_CancelDuplicate', 'edit swissqr invoices', FALSE],
+    ['civicrm/swissqr/task/bulk',                ts('Create QR invoices', $d),  'CRM_SwissQRInvoice_Form_Bulk',            'edit swissqr invoices', FALSE],
+    ['civicrm/swissqr/services',                 ts('Services', $d),            'CRM_SwissQRInvoice_Page_Services',        'access CiviCRM', FALSE],
+    ['civicrm/admin/swissqr/settings',           ts('SwissQR Settings', $d),    'CRM_SwissQRInvoice_Form_Settings',        'administer CiviCRM', FALSE],
+    ['civicrm/swissqr/slip',                     ts('Donation slip', $d),       'CRM_SwissQRInvoice_Page_Slip',            '*always allow*', TRUE],
   ];
+}
 
-  // Supprimer les anciennes
+function swissQRinvoice_civicrm_alterMenu(&$items) {
+  foreach (_swissQRinvoice_routes() as [$path, $title, $callback, $perm, $public]) {
+    $items[$path] = [
+      'title'            => $title,
+      'page_callback'    => $callback,
+      'access_arguments' => [[$perm], 'and'],
+      'is_public'        => $public,
+    ];
+  }
+}
+
+function _swissQRinvoice_install_routes(): void {
+  $aclCheck = serialize(['CRM_Core_Permission', 'checkMenu']);
   CRM_Core_DAO::executeQuery(
     "DELETE FROM civicrm_menu WHERE path LIKE 'civicrm/swissqr%' OR path = 'civicrm/admin/swissqr/settings'"
   );
-
-  foreach ($routes as [$path, $title, $callback, $args]) {
+  foreach (_swissQRinvoice_routes() as [$path, $title, $callback, $perm, $public]) {
     CRM_Core_DAO::executeQuery(
       "INSERT INTO civicrm_menu
          (domain_id, path, title, page_callback, access_callback, access_arguments, is_active, is_public, is_exposed, weight, type, page_type)
-       VALUES (1, %1, %2, %3, %4, %5, 1, 0, 1, 1, 1, 1)",
+       VALUES (1, %1, %2, %3, %4, %5, 1, %6, 1, 1, 1, 1)",
       [
-        1 => [$path,     'String'],
-        2 => [$title,    'String'],
+        1 => [$path, 'String'],
+        2 => [$title, 'String'],
         3 => [$callback, 'String'],
         4 => [$aclCheck, 'String'],
-        5 => [$args,     'String'],
+        5 => [serialize([[$perm], 'and']), 'String'],
+        6 => [$public ? 1 : 0, 'Integer'],
       ]
     );
   }
 }
 
-/**
- * Installe le menu de navigation CiviCRM.
- */
 function _swissQRinvoice_install_navigation(): void {
-  // Supprimer les anciennes entrées
+  $d = ['domain' => 'ch.ipik.swissQRinvoice'];
   CRM_Core_DAO::executeQuery("DELETE FROM civicrm_navigation WHERE name LIKE 'swissqr_%'");
-
-  // Entrée racine "Facturation" avec icône
   CRM_Core_DAO::executeQuery(
     "INSERT INTO civicrm_navigation
        (domain_id, label, name, url, permission, permission_operator, parent_id, is_active, has_separator, weight, icon)
-     VALUES (1, 'Facturation', 'swissqr_facturation', NULL, 'access CiviCRM', 'OR', NULL, 1, 0, 35, 'crm-i fa-file-invoice')"
+     VALUES (1, %1, 'swissqr_facturation', NULL, 'access CiviCRM', 'OR', NULL, 1, 0, 35, 'crm-i fa-file-invoice')",
+    [1 => [ts('Invoicing', $d), 'String']]
   );
-  $parentId = (int) CRM_Core_DAO::singleValueQuery("SELECT LAST_INSERT_ID()");
-
+  $parentId = (int) CRM_Core_DAO::singleValueQuery('SELECT LAST_INSERT_ID()');
   $items = [
-    ['Toutes les factures', 'swissqr_list',     'civicrm/swissqr/invoice/list?reset=1',    'access CiviCRM',       10, 0],
-    ['Nouvelle facture',    'swissqr_new',      'civicrm/swissqr/invoice/new?reset=1',     'access CiviCRM',       20, 0],
-    ['Prestations',         'swissqr_services', 'civicrm/swissqr/services?reset=1',        'access CiviCRM',       30, 0],
-    [ts('Settings'),          'swissqr_settings', 'civicrm/admin/swissqr/settings?reset=1',  'administer CiviCRM',   40, 1],
+    [ts('All invoices', $d), 'swissqr_list',     'civicrm/swissqr/invoice/list?reset=1',   'access CiviCRM',     10, 0],
+    [ts('New invoice', $d),  'swissqr_new',      'civicrm/swissqr/invoice/new?reset=1',    'access CiviCRM',     20, 0],
+    [ts('Services', $d),     'swissqr_services', 'civicrm/swissqr/services?reset=1',       'access CiviCRM',     30, 0],
+    [ts('Settings', $d),     'swissqr_settings', 'civicrm/admin/swissqr/settings?reset=1', 'administer CiviCRM', 40, 1],
   ];
-
   foreach ($items as [$label, $name, $url, $perm, $weight, $sep]) {
     CRM_Core_DAO::executeQuery(
       "INSERT INTO civicrm_navigation
          (domain_id, label, name, url, permission, permission_operator, parent_id, is_active, has_separator, weight)
        VALUES (1, %1, %2, %3, %4, 'OR', %5, 1, %6, %7)",
       [
-        1 => [$label,    'String'],
-        2 => [$name,     'String'],
-        3 => [$url,      'String'],
-        4 => [$perm,     'String'],
+        1 => [$label, 'String'],
+        2 => [$name, 'String'],
+        3 => [$url, 'String'],
+        4 => [$perm, 'String'],
         5 => [$parentId, 'Integer'],
-        6 => [$sep,      'Integer'],
-        7 => [$weight,   'Integer'],
+        6 => [$sep, 'Integer'],
+        7 => [$weight, 'Integer'],
       ]
     );
   }
 }
 
-/**
- * Crée le type financier "Facture QR" si absent.
- */
 function _swissQRinvoice_install_financial_type(): void {
   $exists = (int) CRM_Core_DAO::singleValueQuery(
     "SELECT COUNT(*) FROM civicrm_financial_type WHERE name = 'Facture QR'"
@@ -232,7 +217,6 @@ function _swissQRinvoice_install_financial_type(): void {
        VALUES ('Facture QR', 'Paiements de factures Swiss QR', 0, 0, 1)"
     );
   }
-  // Lier les comptes financiers (copier depuis Dons ft_id=1)
   $ftId = (int) CRM_Core_DAO::singleValueQuery(
     "SELECT id FROM civicrm_financial_type WHERE name = 'Facture QR' LIMIT 1"
   );
@@ -242,6 +226,7 @@ function _swissQRinvoice_install_financial_type(): void {
     [1 => [$ftId, 'Integer']]
   );
   if (!$linked && $ftId) {
+    // Copy the account links of "Donation" (financial type 1).
     CRM_Core_DAO::executeQuery(
       "INSERT INTO civicrm_entity_financial_account
          (entity_table, entity_id, account_relationship, financial_account_id)
@@ -253,81 +238,34 @@ function _swissQRinvoice_install_financial_type(): void {
   }
 }
 
-function swissQRinvoice_civicrm_xmlMenu(&$files) {
-  $files[] = __DIR__ . '/xml/Menu/swissQRinvoice.xml';
-}
-
-function swissQRinvoice_civicrm_alterMenu(&$items) {
-  $routes = [
-    'civicrm/swissqr/invoice/list'     => ['Toutes les factures',  'CRM_SwissQRInvoice_Page_InvoiceList'],
-    'civicrm/swissqr/invoice/new'      => ['Nouvelle facture',     'CRM_SwissQRInvoice_Form_Invoice'],
-    'civicrm/swissqr/invoice/edit'     => ['Modifier la facture',  'CRM_SwissQRInvoice_Form_Invoice'],
-    'civicrm/swissqr/invoice/pdf'      => [ts('Download PDF'),      'CRM_SwissQRInvoice_Page_PDF'],
-    'civicrm/swissqr/invoice/send'     => ['Envoyer la facture',   'CRM_SwissQRInvoice_Form_Send',    'edit swissqr invoices'],
-    'civicrm/swissqr/invoice/markpaid' => [ts('Mark as paid'),  'CRM_SwissQRInvoice_Form_MarkPaid', 'edit swissqr invoices'],
-    'civicrm/admin/swissqr/settings'   => [ts('SwissQR Settings'),   'CRM_SwissQRInvoice_Form_Settings'],
-    'civicrm/swissqr/services'         => ['Prestations',          'CRM_SwissQRInvoice_Page_Services'],
-    'civicrm/swissqr/invoice/duplicate' => ['Dupliquer la facture', 'CRM_SwissQRInvoice_Page_Duplicate'],
-    'civicrm/swissqr/invoice/cancel'    => ['Annuler la facture',   'CRM_SwissQRInvoice_Page_Cancel', 'edit swissqr invoices'],
-    'civicrm/swissqr/invoice/cancel-duplicate' => ['Annuler duplicata', 'CRM_SwissQRInvoice_Page_CancelDuplicate', 'edit swissqr invoices'],
-  ];
-  foreach ($routes as $path => $info) {
-    $items[$path] = [
-      'title'            => $info[0],
-      'page_callback'    => $info[1],
-      'access_arguments' => [[$info[2] ?? 'access CiviCRM']],
-    ];
-  }
-}
-
-function swissQRinvoice_civicrm_permission(&$permissions) {
-  $permissions['access swissqr invoices'] = [
-    'label'       => ts('Swiss QR Invoice: view invoices', ['domain' => 'ch.ipik.swissQRinvoice']),
-    'description' => ts('View the list and details of QR invoices.', ['domain' => 'ch.ipik.swissQRinvoice']),
-  ];
-  $permissions['edit swissqr invoices'] = [
-    'label'       => ts('Swiss QR Invoice: create and edit invoices', ['domain' => 'ch.ipik.swissQRinvoice']),
-    'description' => ts('Create, edit, send and mark QR invoices as paid.', ['domain' => 'ch.ipik.swissQRinvoice']),
-  ];
-}
-
 /**
- * Installe le template d'email dans civicrm_msg_template.
- * Idempotent : ne recrée pas si déjà présent.
+ * Default email template. Created once; afterwards it belongs to the admin.
  */
 function _swissQRinvoice_install_msg_template(): void {
   $exists = (int) CRM_Core_DAO::singleValueQuery(
     "SELECT COUNT(*) FROM civicrm_msg_template WHERE msg_title = 'swissqrinvoice_send'"
   );
   if ($exists) {
-    // Mettre à jour le token si l'ancienne version avec {contact.display_name} est présente
-    CRM_Core_DAO::executeQuery(
-      "UPDATE civicrm_msg_template
-       SET msg_html = REPLACE(msg_html, '{contact.display_name}', '{contact_name}'),
-           msg_text = REPLACE(msg_text, '{contact.display_name}', '{contact_name}')
-       WHERE msg_title = 'swissqrinvoice_send'"
-    );
     return;
   }
-
   $bodyHtml = <<<HTML
-<p>Madame, Monsieur {contact_name},</p>
+<p>{contact.email_greeting_display},</p>
 
 <p>Veuillez trouver ci-joint la facture n° <strong>{invoice_number}</strong>
 du {invoice_date} pour un montant de <strong>CHF {amount_due}</strong>.</p>
 
-<p><p>Thank you for your payment before the due date indicated on the invoice.</p>
+<p>Nous vous remercions de votre règlement avant l'échéance indiquée sur la facture.</p>
 
-<p>Do not hesitate to contact us for any questions.</p>
+<p>N'hésitez pas à nous contacter pour toute question.</p>
 
 <p>Avec nos meilleures salutations,<br>
 {organization_name}</p>
 HTML;
 
-  $bodyText = "Madame, Monsieur {contact_name},\n\n"
+  $bodyText = "{contact.email_greeting_display},\n\n"
     . "Veuillez trouver ci-joint la facture n° {invoice_number} "
     . "du {invoice_date} pour un montant de CHF {amount_due}.\n\n"
-    . "Thank you for your payment before the due date indicated on the invoice.\n\n"
+    . "Nous vous remercions de votre règlement avant l'échéance indiquée sur la facture.\n\n"
     . "Avec nos meilleures salutations,\n{organization_name}";
 
   CRM_Core_DAO::executeQuery(
@@ -335,19 +273,36 @@ HTML;
        (msg_title, msg_subject, msg_text, msg_html, is_active, is_default, is_reserved)
      VALUES (%1, %2, %3, %4, 1, 1, 0)",
     [
-      1 => ['swissqrinvoice_send',           'String'],
-      2 => ['Facture N° {invoice_number}',   'String'],
-      3 => [$bodyText,                        'String'],
-      4 => [$bodyHtml,                        'String'],
+      1 => ['swissqrinvoice_send', 'String'],
+      2 => ['Facture N° {invoice_number}', 'String'],
+      3 => [$bodyText, 'String'],
+      4 => [$bodyHtml, 'String'],
     ]
   );
 }
 
+// ── Hooks ────────────────────────────────────────────────────────────────────
+
+function swissQRinvoice_civicrm_permission(&$permissions) {
+  $d = ['domain' => 'ch.ipik.swissQRinvoice'];
+  $permissions['access swissqr invoices'] = [
+    'label'       => ts('Swiss QR Invoice: view invoices', $d),
+    'description' => ts('View the list and details of QR invoices.', $d),
+  ];
+  $permissions['edit swissqr invoices'] = [
+    'label'       => ts('Swiss QR Invoice: create and edit invoices', $d),
+    'description' => ts('Create, edit, send and mark QR invoices as paid.', $d),
+  ];
+}
+
 function swissQRinvoice_civicrm_tabset($tabsetName, &$tabs, $context) {
-  if ($tabsetName !== 'civicrm/contact/view') return;
-  if (!CRM_Core_Permission::check('access CiviCRM')) return;
-  $contactID = (int)($context['contact_id'] ?? 0);
-  if (!$contactID) return;
+  if ($tabsetName !== 'civicrm/contact/view' || !CRM_Core_Permission::check('access CiviCRM')) {
+    return;
+  }
+  $contactID = (int) ($context['contact_id'] ?? 0);
+  if (!$contactID) {
+    return;
+  }
   $count = CRM_SwissQRInvoice_BAO_Invoice::getCountForContact($contactID);
   $tabs['swissqr_invoices'] = [
     'id'     => 'swissqr_invoices',
@@ -360,16 +315,36 @@ function swissQRinvoice_civicrm_tabset($tabsetName, &$tabs, $context) {
   ];
 }
 
-// Garder l'ancien hook pour compatibilité éventuelle
-function swissQRinvoice_civicrm_tabs(&$tabs, $contactID) {
-  if (!CRM_Core_Permission::check('access CiviCRM')) return;
-  $count = CRM_SwissQRInvoice_BAO_Invoice::getCountForContact($contactID);
-  $tabs[] = [
-    'id'     => 'swissqr_invoices',
-    'url'    => CRM_Utils_System::url('civicrm/swissqr/invoice/list', "cid={$contactID}&reset=1"),
-    'title'  => ts('QR Invoices', ['domain' => 'ch.ipik.swissQRinvoice']) . ($count ? " ({$count})" : ''),
-    'weight' => 150,
+/**
+ * "Create QR invoices" in the Actions menu of contact searches.
+ */
+function swissQRinvoice_civicrm_searchTasks($objectType, &$tasks) {
+  if ($objectType !== 'contact' || !CRM_Core_Permission::check('edit swissqr invoices')) {
+    return;
+  }
+  $tasks[] = [
+    'title'  => ts('Create QR invoices', ['domain' => 'ch.ipik.swissQRinvoice']),
+    'class'  => 'CRM_SwissQRInvoice_Form_Bulk',
+    'url'    => 'civicrm/swissqr/task/bulk',
+    'result' => FALSE,
   ];
 }
 
+/**
+ * Keep invoices in step with their contribution (payments recorded by hand,
+ * by CiviBanking, or cancellations made from the contribution itself).
+ */
+function swissQRinvoice_civicrm_post($op, $objectName, $objectId, &$objectRef) {
+  if ($objectName === 'Contribution' && $objectId && in_array($op, ['create', 'edit'], TRUE)) {
+    CRM_SwissQRInvoice_Contribution::syncInvoice((int) $objectId);
+  }
+}
 
+/**
+ * Attach the QR invoice to CiviCRM's native "Email invoice".
+ */
+function swissQRinvoice_civicrm_alterMailParams(&$params, $context) {
+  if ($context === 'singleEmail') {
+    CRM_SwissQRInvoice_Mail::alterNativeInvoiceEmail($params);
+  }
+}
