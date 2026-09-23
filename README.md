@@ -96,4 +96,4 @@ AGPL-3.0 — see [LICENSE](LICENSE)
 
 ## Author
 
-Frédéric Hiltbrand / [IPIK](https://ipik.ch) — fred@ipik.ch
+Frédéric Hiltbrand / [IPIK](https://ipik.ch) — fh@ipik.ch
