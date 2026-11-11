@@ -1,7 +1,7 @@
 <?php
 /**
  * ch.ipik.swissQRinvoice — Swiss QR Invoice extension for CiviCRM
- * Version 0.36
+ * Version 0.41
  */
 
 function swissQRinvoice_civicrm_config(&$config) {

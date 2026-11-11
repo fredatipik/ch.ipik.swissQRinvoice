@@ -3,8 +3,16 @@
   <h3>Envoyer la facture {$invoice.invoice_number} — {$invoice.contact_name|escape}</h3>
 
   <div class="crm-section">
-    <div class="label">{$form.to_email.label}</div>
-    <div class="content">{$form.to_email.html}</div>
+    <div class="label">{$form.to_contact_id.label}</div>
+    <div class="content">{$form.to_contact_id.html}<br><span class="description">{ts}The invoice goes to this contact's primary email address.{/ts}</span></div>
+  </div>
+  <div class="crm-section">
+    <div class="label">{$form.cc_contact_ids.label}</div>
+    <div class="content">{$form.cc_contact_ids.html}</div>
+  </div>
+  <div class="crm-section">
+    <div class="label">{$form.bcc_contact_ids.label}</div>
+    <div class="content">{$form.bcc_contact_ids.html}<br><span class="description">{ts}Contacts to copy for this invoice. Prefilled from the settings; a contact can be created from the field itself.{/ts}</span></div>
   </div>
   <div class="crm-section">
     <div class="label">{$form.subject.label}</div>

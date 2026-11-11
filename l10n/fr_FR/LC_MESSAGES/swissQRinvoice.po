@@ -175,10 +175,6 @@ msgstr "Impossible d'envoyer une facture annulée."
 msgid "Error"
 msgstr "Erreur"
 
-#: CRM/SwissQRInvoice/Form/Send.php:31
-msgid "Recipient email"
-msgstr "Email destinataire"
-
 #: CRM/SwissQRInvoice/Form/Send.php:32
 msgid "Subject"
 msgstr "Objet"
@@ -486,16 +482,6 @@ msgid ""
 msgstr ""
 "Une facture sera créée et émise pour chacun des %1 contacts sélectionnés."
 
-#: templates/CRM/SwissQRInvoice/Form/Bulk.tpl:6
-msgid ""
-"Each invoice gets a pending contribution. To send them, search for these "
-"contributions and use the \"Email invoice\" action: the QR slip is attached "
-"automatically."
-msgstr ""
-"Chaque facture reçoit une contribution en attente. Pour les envoyer, "
-"recherchez ces contributions et utilisez l'action « Envoyer la facture par "
-"email » : le bulletin QR est joint automatiquement."
-
 #: templates/CRM/SwissQRInvoice/Form/Bulk.tpl:12
 msgid ""
 "Pick a service from the catalogue, or leave on free entry and fill in the "
@@ -657,14 +643,72 @@ msgstr "Erreur lors de l'envoi de la facture."
 msgid "No email address for this contact."
 msgstr "Aucune adresse email pour ce contact."
 
-msgid "Another extension blocked this email (hook_civicrm_alterMailParams). Check the SMTP routing configuration for the sender address."
-msgstr "Une autre extension a bloqué cet email (hook_civicrm_alterMailParams). Vérifiez la configuration du routage SMTP pour l'adresse d'expédition."
+msgid ""
+"Another extension blocked this email (hook_civicrm_alterMailParams). Check "
+"the SMTP routing configuration for the sender address."
+msgstr ""
+"Une autre extension a bloqué cet email (hook_civicrm_alterMailParams). "
+"Vérifiez la configuration du routage SMTP pour l'adresse d'expédition."
 
 msgid "The mail server refused the message. See the CiviCRM log."
 msgstr "Le serveur de mail a refusé le message. Voir le journal CiviCRM."
 
-msgid "Each invoice gets a pending contribution, so payments can be reconciled from the bank. Tick the box below to email them right away, or send them later from the invoice list."
-msgstr "Chaque facture reçoit une contribution en attente, ce qui permet de rapprocher les paiements depuis la banque. Cochez la case ci-dessous pour les envoyer tout de suite par email, ou envoyez-les plus tard depuis la liste des factures."
+msgid ""
+"Each invoice gets a pending contribution, so payments can be reconciled from"
+" the bank. Tick the box below to email them right away, or send them later "
+"from the invoice list."
+msgstr ""
+"Chaque facture reçoit une contribution en attente, ce qui permet de "
+"rapprocher les paiements depuis la banque. Cochez la case ci-dessous pour "
+"les envoyer tout de suite par email, ou envoyez-les plus tard depuis la "
+"liste des factures."
 
-msgid "Uses the swissqrinvoice_send message template, with the QR invoice attached. A contact without an email address is skipped and logged."
-msgstr "Utilise le modèle de message swissqrinvoice_send, avec la facture QR en pièce jointe. Un contact sans adresse email est ignoré et signalé dans le journal."
+msgid ""
+"Uses the swissqrinvoice_send message template, with the QR invoice attached."
+" A contact without an email address is skipped and logged."
+msgstr ""
+"Utilise le modèle de message swissqrinvoice_send, avec la facture QR en "
+"pièce jointe. Un contact sans adresse email est ignoré et signalé dans le "
+"journal."
+
+msgid "Copy invoices to (Cc)"
+msgstr "Copie des factures à (Cc)"
+
+msgid "Copy invoices to (Bcc)"
+msgstr "Copie cachée des factures à (Cci)"
+
+msgid "Sending template"
+msgstr "Modèle d'envoi"
+
+msgid ""
+"Visible copy, sent with every invoice. Addresses are read from the contacts "
+"at send time, so they stay up to date."
+msgstr ""
+"Copie visible, envoyée avec chaque facture. Les adresses sont lues sur les "
+"contacts au moment de l'envoi, elles restent donc à jour."
+
+msgid ""
+"Blind copy — typically an archive or accounting contact. The other "
+"recipients do not see it."
+msgstr ""
+"Copie cachée — en général un contact d'archivage ou de comptabilité. Les "
+"autres destinataires ne la voient pas."
+
+msgid "Cc"
+msgstr "Cc"
+
+msgid "Bcc"
+msgstr "Cci"
+
+msgid ""
+"Contacts to copy for this invoice. Prefilled from the settings; a contact "
+"can be created from the field itself."
+msgstr ""
+"Contacts à mettre en copie pour cette facture. Pré-rempli d'après les "
+"paramètres ; un contact peut être créé depuis le champ lui-même."
+
+msgid "This contact has no usable email address."
+msgstr "Ce contact n'a pas d'adresse email utilisable."
+
+msgid "The invoice goes to this contact's primary email address."
+msgstr "La facture part à l'adresse email principale de ce contact."

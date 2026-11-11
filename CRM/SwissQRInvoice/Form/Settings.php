@@ -5,6 +5,8 @@ class CRM_SwissQRInvoice_Form_Settings extends CRM_Core_Form {
     $this->add('text','swissqr_iban',           ts('IBAN', ['domain' => 'ch.ipik.swissQRinvoice']),              ['class'=>'huge'], true);
     $this->add('text','swissqr_signatory_name', ts('Signatory name', ['domain' => 'ch.ipik.swissQRinvoice']), ['class'=>'huge']);
     $this->add('text','swissqr_vat_note',       ts('VAT note', ['domain' => 'ch.ipik.swissQRinvoice']),       ['class'=>'huge']);
+    $this->addEntityRef('swissqr_cc_contact_ids',  ts('Copy invoices to (Cc)', ['domain' => 'ch.ipik.swissQRinvoice']),  ['multiple' => TRUE, 'create' => TRUE]);
+    $this->addEntityRef('swissqr_bcc_contact_ids', ts('Copy invoices to (Bcc)', ['domain' => 'ch.ipik.swissQRinvoice']), ['multiple' => TRUE, 'create' => TRUE]);
     $this->add('text','swissqr_invoice_number_format', ts('Numbering format', ['domain' => 'ch.ipik.swissQRinvoice']), ['class'=>'huge','placeholder'=>'{YEAR}-{SEQ:4}']);
     $this->add('text','swissqr_qr_reference_template', ts('QR reference template', ['domain' => 'ch.ipik.swissQRinvoice']), ['class'=>'huge','placeholder'=>'Facture N° {NUMBER}']);
     // swissqr_email_body_template et swissqr_email_subject_template conservés en base (fallback Send.php)
@@ -38,6 +40,7 @@ class CRM_SwissQRInvoice_Form_Settings extends CRM_Core_Form {
 
   private function _getDefaults(): array {
     $keys = ['swissqr_org_contact_id','swissqr_iban','swissqr_signatory_name','swissqr_vat_note',
+             'swissqr_cc_contact_ids','swissqr_bcc_contact_ids',
              'swissqr_invoice_number_format','swissqr_qr_reference_template','swissqr_email_body_template',
              'swissqr_email_subject_template','swissqr_logo_path','swissqr_logo_offset_x',
              'swissqr_logo_margin_bottom','swissqr_signature_path','swissqr_allowed_roles',
@@ -57,6 +60,7 @@ class CRM_SwissQRInvoice_Form_Settings extends CRM_Core_Form {
   public function postProcess() {
     $vals = $this->exportValues();
     $keys = ['swissqr_org_contact_id','swissqr_iban','swissqr_signatory_name','swissqr_vat_note',
+             'swissqr_cc_contact_ids','swissqr_bcc_contact_ids',
              'swissqr_invoice_number_format','swissqr_qr_reference_template','swissqr_email_body_template',
              'swissqr_email_subject_template','swissqr_logo_path','swissqr_logo_offset_x',
              'swissqr_logo_margin_bottom','swissqr_signature_path','swissqr_allowed_roles',

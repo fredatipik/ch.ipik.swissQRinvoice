@@ -6,6 +6,8 @@ return [
   'swissqr_signature_path'         => ['group'=>'domain','name'=>'swissqr_signature_path','type'=>'String','default'=>'','add'=>'1.0'],
   'swissqr_signatory_name'         => ['group'=>'domain','name'=>'swissqr_signatory_name','type'=>'String','default'=>'','add'=>'1.0'],
   'swissqr_vat_note'               => ['group'=>'domain','name'=>'swissqr_vat_note','type'=>'String','default'=>'','add'=>'1.0'],
+  'swissqr_cc_contact_ids'         => ['group'=>'domain','name'=>'swissqr_cc_contact_ids','type'=>'String','default'=>'','add'=>'1.0'],
+  'swissqr_bcc_contact_ids'        => ['group'=>'domain','name'=>'swissqr_bcc_contact_ids','type'=>'String','default'=>'','add'=>'1.0'],
   'swissqr_invoice_number_format'  => ['group'=>'domain','name'=>'swissqr_invoice_number_format','type'=>'String','default'=>'{YEAR}-{SEQ:4}','add'=>'1.0'],
   'swissqr_invoice_seq'            => ['group'=>'domain','name'=>'swissqr_invoice_seq','type'=>'Integer','default'=>0,'add'=>'1.0'],
   'swissqr_qr_reference_template'  => ['group'=>'domain','name'=>'swissqr_qr_reference_template','type'=>'String','default'=>'Facture N° {NUMBER}','add'=>'1.0'],

@@ -1,5 +1,46 @@
 # Changelog
 
+## 0.41 — 2026-11-10
+
+### Changed
+- The recipient of a single invoice is now a contact too, preselected from the
+  invoice. Its primary address is read at send time; a contact without one is
+  reported instead of sending nowhere.
+
+## 0.40 — 2026-11-10
+
+### Changed
+- Copies are now CiviCRM contacts everywhere, in the settings and on the send
+  screen, with a contact creatable straight from the field. The free-text
+  address fields are gone: an address with no contact is added by creating one.
+
+## 0.39 — 2026-11-10
+
+### Added
+- Cc and Bcc fields on the single-invoice send screen, prefilled from the
+  standing copies and editable for that invoice only — clearing a field sends
+  no copy at all. Invalid addresses are reported on the form instead of being
+  dropped. Bulk sending keeps the standing copies.
+
+## 0.38 — 2026-11-10
+
+### Added
+- Cc and Bcc copies can now be CiviCRM contacts, picked in the settings. Their
+  addresses are read at send time, so they follow the contact. Contacts that are
+  deleted, marked "do not email", on hold or without a primary address are
+  skipped and logged. The free-text fields remain for addresses that belong to
+  no contact; both lists are merged and de-duplicated.
+
+## 0.37 — 2026-11-10
+
+### Added
+- Standing Cc and Bcc addresses in the settings, applied to every invoice email,
+  sent one at a time or in bulk. Invalid addresses are dropped and logged rather
+  than failing the send. Donation slips sent through CiviMail are unaffected.
+
+### Fixed
+- One French string left hardcoded in the settings page is now translatable.
+
 ## 0.31 — 2026-09-23
 
 ### Fixed

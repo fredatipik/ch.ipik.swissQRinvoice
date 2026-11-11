@@ -27,12 +27,21 @@
 
   <h4>Email</h4>
   <div class="crm-section">
-    <div class="label">Template d'envoi</div>
+    <div class="label">{ts}Sending template{/ts}</div>
     <div class="content">
       <a href="{crmURL p='civicrm/admin/messageTemplates' q='reset=1'}" target="_blank" class="button"><span><i class="crm-i fa-edit"></i> {ts}Manage message templates{/ts}</span></a>
       <br><span class="description">{ts}Search for <strong>swissqrinvoice_send</strong> in the User-Driven Messages list to edit the invoice email template.{/ts}</span>
     </div>
   </div>
+  <div class="crm-section">
+    <div class="label">{$form.swissqr_cc_contact_ids.label}</div>
+    <div class="content">{$form.swissqr_cc_contact_ids.html}<br><span class="description">{ts}Visible copy, sent with every invoice. Addresses are read from the contacts at send time, so they stay up to date.{/ts}</span></div>
+  </div>
+  <div class="crm-section">
+    <div class="label">{$form.swissqr_bcc_contact_ids.label}</div>
+    <div class="content">{$form.swissqr_bcc_contact_ids.html}<br><span class="description">{ts}Blind copy — typically an archive or accounting contact. The other recipients do not see it.{/ts}</span></div>
+  </div>
+
 
   <h4>{ts}Accounting{/ts}</h4>
   <div class="crm-section"><div class="label">{$form.swissqr_financial_account_id.label}</div><div class="content">{$form.swissqr_financial_account_id.html}<br><span class="description">{ts}Financial account used for QR invoice payments{/ts}</span></div></div>

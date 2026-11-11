@@ -66,7 +66,12 @@ class CRM_SwissQRInvoice_Sender {
    *
    * @param string|null $error  Filled with a human-readable reason on failure.
    */
-  public static function send(array $invoice, string $toEmail, string $subject, string $bodyHtml, ?string &$error = NULL): bool {
+  /**
+   * @param string|null $cc  Explicit copies. NULL falls back to the standing
+   *   copies from the settings; an empty string means "no copy at all".
+   * @param string|null $bcc Same, for blind copies.
+   */
+  public static function send(array $invoice, string $toEmail, string $subject, string $bodyHtml, ?string &$error = NULL, ?string $cc = NULL, ?string $bcc = NULL): bool {
     if (!$toEmail) {
       $error = ts('No email address for this contact.', ['domain' => self::DOMAIN]);
       return FALSE;
@@ -93,6 +98,17 @@ class CRM_SwissQRInvoice_Sender {
       'text'        => strip_tags($bodyHtml),
       'attachments' => [['fullPath' => $tmpFile, 'mime_type' => 'application/pdf', 'cleanName' => $fileName]],
     ];
+
+    // Standing copies, from the settings. CiviCRM strips the Bcc header before
+    // delivery and keeps the address in the envelope only, so a blind copy
+    // stays invisible to the other recipients.
+    $standing = self::standingCopies();
+    foreach (['cc' => $cc, 'bcc' => $bcc] as $key => $explicit) {
+      $list = $explicit === NULL ? $standing[$key] : self::cleanAddressList($explicit);
+      if ($list !== '') {
+        $mailParams[$key] = $list;
+      }
+    }
     $pdfSize = strlen($pdf);
     $sent    = CRM_Utils_Mail::send($mailParams);
     @unlink($tmpFile);
@@ -120,6 +136,119 @@ class CRM_SwissQRInvoice_Sender {
       ? ts('Another extension blocked this email (hook_civicrm_alterMailParams). Check the SMTP routing configuration for the sender address.', ['domain' => self::DOMAIN])
       : ts('The mail server refused the message. See the CiviCRM log.', ['domain' => self::DOMAIN]);
     return FALSE;
+  }
+
+  /**
+   * Comma-separated list of valid addresses, from a free-text setting.
+   *
+   * Separators may be commas, semicolons or newlines. Invalid entries are
+   * dropped and logged rather than failing the send: a typo in the settings
+   * must not stop every invoice from going out.
+   */
+  public static function cleanAddressList(string $raw): string {
+    $kept = [];
+    foreach (preg_split('/[,;\r\n]+/', $raw) as $candidate) {
+      $candidate = trim($candidate);
+      if ($candidate === '') {
+        continue;
+      }
+      if (filter_var($candidate, FILTER_VALIDATE_EMAIL)) {
+        $kept[] = $candidate;
+      }
+      else {
+        CRM_Core_Error::debug_log_message('SwissQRInvoice: ignoring invalid copy address "' . $candidate . '" from the settings.');
+      }
+    }
+    return implode(', ', array_unique($kept));
+  }
+
+  /**
+   * The standing copies from the settings, ready to use.
+   *
+   * Each one merges the selected contacts' addresses with the free-text
+   * addresses, without duplicates.
+   *
+   * @return array ['cc' => string, 'bcc' => string]
+   */
+  public static function standingCopies(): array {
+    $out = [];
+    foreach (['cc' => 'swissqr_cc_contact_ids', 'bcc' => 'swissqr_bcc_contact_ids'] as $key => $setting) {
+      $addresses = self::contactAddresses((string) Civi::settings()->get($setting));
+      $out[$key] = implode(', ', array_unique($addresses));
+    }
+    return $out;
+  }
+
+  /**
+   * Primary email addresses of the contacts selected in the settings.
+   *
+   * Resolved at send time rather than stored, so a contact who changes address
+   * keeps receiving the copies. Contacts that must not be emailed — no address,
+   * address on hold, "do not email", deleted contact — are skipped and logged:
+   * a missing copy must not stop an invoice from going out.
+   *
+   * @param string $contactIds Comma-separated contact ids, as the picker stores them.
+   */
+  public static function contactAddresses(string $contactIds): array {
+    $ids = array_filter(array_map('intval', preg_split('/[^0-9]+/', $contactIds)));
+    if (!$ids) {
+      return [];
+    }
+    try {
+      $result = civicrm_api3('Contact', 'get', [
+        'id'           => ['IN' => $ids],
+        'is_deleted'   => 0,
+        'do_not_email' => 0,
+        'return'       => ['id', 'display_name'],
+        'options'      => ['limit' => 0],
+      ]);
+    }
+    catch (Exception $e) {
+      CRM_Core_Error::debug_log_message('SwissQRInvoice: could not resolve copy contacts: ' . $e->getMessage());
+      return [];
+    }
+
+    $names = [];
+    foreach ($result['values'] as $contact) {
+      $names[(int) $contact['id']] = $contact['display_name'] ?? '?';
+    }
+    foreach (array_diff($ids, array_keys($names)) as $missing) {
+      CRM_Core_Error::debug_log_message(
+        'SwissQRInvoice: copy contact id ' . $missing . ' is deleted or marked "do not email" — skipped.'
+      );
+    }
+    if (!$names) {
+      return [];
+    }
+
+    // Primary address only, and never one on hold.
+    try {
+      $emails = civicrm_api3('Email', 'get', [
+        'contact_id' => ['IN' => array_keys($names)],
+        'is_primary' => 1,
+        'on_hold'    => 0,
+        'return'     => ['contact_id', 'email'],
+        'options'    => ['limit' => 0],
+      ]);
+    }
+    catch (Exception $e) {
+      CRM_Core_Error::debug_log_message('SwissQRInvoice: could not resolve copy addresses: ' . $e->getMessage());
+      return [];
+    }
+
+    $addresses = [];
+    foreach ($emails['values'] as $row) {
+      if (!empty($row['email'])) {
+        $addresses[(int) $row['contact_id']] = $row['email'];
+      }
+    }
+    foreach (array_diff(array_keys($names), array_keys($addresses)) as $without) {
+      CRM_Core_Error::debug_log_message(sprintf(
+        'SwissQRInvoice: copy contact %s (id %d) has no usable primary email — skipped.',
+        $names[$without], $without
+      ));
+    }
+    return array_values($addresses);
   }
 
   /**

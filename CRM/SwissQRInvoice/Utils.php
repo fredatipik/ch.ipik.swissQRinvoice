@@ -35,6 +35,8 @@ class CRM_SwissQRInvoice_Utils {
       'swissqr_signature_path',
       'swissqr_signatory_name',
       'swissqr_vat_note',
+      'swissqr_cc_contact_ids',
+      'swissqr_bcc_contact_ids',
       'swissqr_invoice_number_format',
       'swissqr_invoice_seq',
       'swissqr_allowed_roles',
